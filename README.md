@@ -1,48 +1,54 @@
-# 📌 Smart Parking Management System
+# 🚗 Smart Parking Management System  
 
-🚗 A web-based solution for real-time parking slot booking, availability tracking, and management.
-
----
-
-## 🚀 Project Overview
-This system allows users to:
-- View available parking slots in real time.
-- Filter slots based on vehicle type.
-- Pre-book and cancel parking slots.
-- Extend parking duration if needed.
-- Parking lot owners can manage pricing, reservations, and slot availability.
+A web and mobile-based **Smart Parking Management System** that allows **parking lot owners** to manage their spaces, **users** to find and book parking slots, and **admins** to oversee operations.
 
 ---
 
-## 📜 User Stories
-### ✅ Users:
-1. View available parking slots in real time.
-2. Filter slots by vehicle type.
-3. Pre-book a slot for a specific time.
-4. Cancel a booking before a specific time.
-5. Extend parking duration if needed.
+## 📌 Features  
 
-### ✅ Parking Lot Owners:
-6. View a dashboard of active and booked slots.
-7. Set different rates for peak and off-peak hours.
+### 🔹 **User & Owner Management**
+- Register/login via Email (OTP-based authentication).
+- Edit profiles, link bank accounts (for owners).
+- Manage past bookings and view parking history.
+
+### 🔹 **Parking Slot & Booking Management**
+- Search for parking slots by location, price, or name.
+- Real-time availability tracking.
+- Pre-book and extend parking duration.
+- Cancel bookings and get refunds.
+
+### 🔹 **Payment & Revenue Management**
+- Secure payments.
+- Track payment history.
+- Dynamic pricing based on demand and time.
+- Revenue dashboard for parking lot owners.
+
+### 🔹 **Admin Management**
+- Manage users and parking lot owners (approve/block).
+- Handle disputes and complaints.
+- View analytics and generate reports.
+
+### 🔹 **Notifications, Feedback & Analytics**
+- Real-time alerts (booking confirmation, slot availability, etc.).
+- Collect and analyze user feedback.
+- Provide insights on parking lot performance.
 
 ---
 
-## 📅 Project Planning
-- **Sprint 1:** UI design, backend setup, database schema.
-- **Sprint 2:** Implement booking, filtering, and availability tracking.
-- **Sprint 3:** Payment integration and final testing.
+## 💻 Tech Stack  
 
-📌 **Tools Used:**
-- **Frontend:** React.js
-- **Backend:** Node.js 
-- **Database:** PostgreSQL / MongoDB
-- **Version Control:** Git & GitHub
-- **Project Management:** JIRA
+### **Frontend**  
+- React.js (Web)  
+- Tailwind CSS 
 
+### **Backend**  
+- Node.js + Express.js (API)  
+- PostgreSQL / MongoDB (Database)  
+---
 
-## 🔗 Setup Instructions
-1️⃣ Clone the repo:
-```sh
-git clone https://github.com/your-repo/smart-parking.git
+## 🛠 Installation & Setup  
+
+### **1️⃣ Clone the Repository**
+```bash
+git clone https://github.com/yourusername/smart-parking.git
 cd smart-parking
