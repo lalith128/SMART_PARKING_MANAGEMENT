@@ -50,5 +50,5 @@ A web and mobile-based **Smart Parking Management System** that allows **parking
 
 ### **1️⃣ Clone the Repository**
 ```bash
-git clone https://github.com/lalith128/SMART_PARKING_MANAGEMENT.git
+git clone https://github.com/lalith128/SMART_PARKING_MANAGEMENT
 cd smart-parking
