@@ -12,6 +12,31 @@
     --border: 0 0% 90%;
     --input: 0 0% 90%;
     --ring: 0 0% 20%;
+    
+    --primary: 221 83% 53%;
+    --primary-foreground: 0 0% 100%;
+    --primary-hover: 221 83% 45%;
+    
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222 47% 11%;
+    --secondary-hover: 210 40% 90%;
+    
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;
+    
+    --accent: 210 40% 96%;
+    --accent-foreground: 222 47% 11%;
+    
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+    
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+
+    --radius: 0.75rem;
   }
 }
 
@@ -25,46 +50,40 @@
   }
 }
 
-.glass-card {
-  @apply bg-white/80 backdrop-blur-lg border border-white/20 rounded-2xl shadow-lg;
-}
+@layer components {
+  .glass-card {
+    @apply bg-white/80 backdrop-blur-lg border border-white/20 rounded-2xl shadow-lg;
+  }
 
-.button-transition {
-  @apply transition-all duration-300 ease-in-out transform hover:scale-105;
-}
+  .button-transition {
+    @apply transition-all duration-300 ease-in-out transform hover:scale-105;
+  }
 
-.section-padding {
-  @apply px-6 py-16 md:px-8 lg:px-12 xl:px-24 2xl:px-32;
-}
+  .section-padding {
+    @apply px-6 py-16 md:px-8 lg:px-12 xl:px-24 2xl:px-32;
+  }
 
-.feature-card {
-  @apply p-8 glass-card hover:shadow-xl transition-shadow duration-300;
-}
+  .feature-card {
+    @apply p-8 glass-card hover:shadow-xl transition-shadow duration-300;
+  }
 
-.testimonial-card {
-  @apply p-6 glass-card hover:shadow-xl transition-shadow duration-300;
-}
+  .testimonial-card {
+    @apply p-6 glass-card hover:shadow-xl transition-shadow duration-300;
+  }
 
-.primary-btn {
-  @apply px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-hover transition-all duration-300 shadow-lg hover:shadow-xl;
-}
+  .primary-btn {
+    @apply px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary-hover transition-all duration-300 shadow-lg hover:shadow-xl;
+  }
 
-.secondary-btn {
-  @apply px-6 py-3 bg-secondary text-primary rounded-lg hover:bg-secondary-hover transition-all duration-300 shadow-md hover:shadow-lg;
-}
+  .secondary-btn {
+    @apply px-6 py-3 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary-hover transition-all duration-300 shadow-md hover:shadow-lg;
+  }
 
-.hover-lift {
-  @apply transition-transform duration-300 hover:-translate-y-1;
-}
+  .hover-lift {
+    @apply transition-transform duration-300 hover:-translate-y-1;
+  }
 
-.gradient-text {
-  @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary-hover;
-}
-
-.section-title {
-  @apply font-display text-3xl md:text-4xl font-bold mb-6 text-center;
-}
-
-.section-subtitle {
-  @apply text-lg md:text-xl text-gray-600 mb-12 text-center max-w-3xl mx-auto;
+  .gradient-text {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-blue-600;
+  }
 }
