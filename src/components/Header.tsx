@@ -10,26 +10,26 @@ export const Header = () => {
       <nav className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex-shrink-0">
-            <a href="/" className="font-display text-2xl font-bold text-primary">
+            <a href="/" className="font-display text-2xl font-bold gradient-text">
               ParkEase
             </a>
           </div>
 
           {/* Desktop menu */}
           <div className="hidden md:flex items-center space-x-8">
-            <a href="#features" className="text-primary hover:text-primary-hover transition-colors">
+            <a href="#features" className="text-primary hover:text-primary-hover transition-colors hover-lift">
               Features
             </a>
-            <a href="#how-it-works" className="text-primary hover:text-primary-hover transition-colors">
+            <a href="#how-it-works" className="text-primary hover:text-primary-hover transition-colors hover-lift">
               How It Works
             </a>
-            <a href="#testimonials" className="text-primary hover:text-primary-hover transition-colors">
+            <a href="#testimonials" className="text-primary hover:text-primary-hover transition-colors hover-lift">
               Testimonials
             </a>
-            <button className="px-4 py-2 text-primary-foreground bg-primary hover:bg-primary-hover rounded-lg button-transition">
+            <button className="primary-btn">
               Log In
             </button>
-            <button className="px-4 py-2 text-primary bg-secondary hover:bg-secondary-hover rounded-lg button-transition">
+            <button className="secondary-btn">
               Sign Up
             </button>
           </div>
@@ -38,7 +38,7 @@ export const Header = () => {
           <div className="md:hidden">
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="text-primary hover:text-primary-hover p-2"
+              className="text-primary hover:text-primary-hover p-2 hover:bg-primary/5 rounded-lg transition-colors"
             >
               {isOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
@@ -47,33 +47,33 @@ export const Header = () => {
 
         {/* Mobile menu */}
         {isOpen && (
-          <div className="md:hidden py-4 animate-fadeIn">
+          <div className="md:hidden py-4 animate-fadeIn bg-white/95 backdrop-blur-md rounded-b-2xl shadow-lg">
             <div className="flex flex-col space-y-4">
               <a
                 href="#features"
-                className="text-primary hover:text-primary-hover px-4 py-2 rounded-lg"
+                className="text-primary hover:text-primary-hover px-4 py-2 rounded-lg hover:bg-primary/5"
                 onClick={() => setIsOpen(false)}
               >
                 Features
               </a>
               <a
                 href="#how-it-works"
-                className="text-primary hover:text-primary-hover px-4 py-2 rounded-lg"
+                className="text-primary hover:text-primary-hover px-4 py-2 rounded-lg hover:bg-primary/5"
                 onClick={() => setIsOpen(false)}
               >
                 How It Works
               </a>
               <a
                 href="#testimonials"
-                className="text-primary hover:text-primary-hover px-4 py-2 rounded-lg"
+                className="text-primary hover:text-primary-hover px-4 py-2 rounded-lg hover:bg-primary/5"
                 onClick={() => setIsOpen(false)}
               >
                 Testimonials
               </a>
-              <button className="w-full px-4 py-2 text-primary-foreground bg-primary hover:bg-primary-hover rounded-lg">
+              <button className="w-full primary-btn">
                 Log In
               </button>
-              <button className="w-full px-4 py-2 text-primary bg-secondary hover:bg-secondary-hover rounded-lg">
+              <button className="w-full secondary-btn">
                 Sign Up
               </button>
             </div>
