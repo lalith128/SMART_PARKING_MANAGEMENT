@@ -1,7 +1,8 @@
 
 import { useState } from "react";
-import { X } from "lucide-react";
+import { X, LogIn, UserPlus } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { toast } from "sonner";
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -27,16 +28,19 @@ export const AuthModal = ({ isOpen, onClose, mode }: AuthModalProps) => {
           password,
         });
         if (error) throw error;
+        toast.success("Check your email to confirm your account!");
       } else {
         const { error } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
         if (error) throw error;
+        toast.success("Successfully logged in!");
       }
       onClose();
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
+      toast.error(err instanceof Error ? err.message : "An error occurred");
     } finally {
       setLoading(false);
     }
@@ -98,9 +102,21 @@ export const AuthModal = ({ isOpen, onClose, mode }: AuthModalProps) => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full primary-btn disabled:opacity-50"
+            className="w-full primary-btn disabled:opacity-50 flex items-center justify-center gap-2"
           >
-            {loading ? "Processing..." : mode === "login" ? "Log In" : "Sign Up"}
+            {loading ? (
+              "Processing..."
+            ) : mode === "login" ? (
+              <>
+                <LogIn className="w-4 h-4" />
+                Log In
+              </>
+            ) : (
+              <>
+                <UserPlus className="w-4 h-4" />
+                Sign Up
+              </>
+            )}
           </button>
         </form>
       </div>
