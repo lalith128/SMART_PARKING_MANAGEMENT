@@ -1,21 +1,13 @@
-import { useState } from 'react';
-import { supabase } from '../lib/supabase';
-import { Input } from '../components/ui/input';
-import { Button } from '../components/ui/button';
-import { Card } from '../components/ui/card';
-import { useToast } from '../components/ui/use-toast';
 
-interface ParkingSpace {
-  id: string;
-  address: string;
-  hourly_rate: number;
-  bike_capacity: number;
-  car_capacity: number;
-  location: {
-    lat: number;
-    lng: number;
-  };
-}
+import { useState } from 'react';
+import { supabase } from '@/lib/supabase';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { useToast } from '@/components/ui/use-toast';
+import type { Database } from '@/types/supabase';
+
+type ParkingSpace = Database['public']['Tables']['parking_spaces']['Row'];
 
 export default function ParkingSearch() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -35,7 +27,6 @@ export default function ParkingSearch() {
 
     setLoading(true);
     try {
-      // Search for parking spaces where address contains the search query
       const { data, error } = await supabase
         .from('parking_spaces')
         .select('*')
