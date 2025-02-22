@@ -1,19 +1,11 @@
+
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { 
-  Car, 
-  UserPlus, 
-  Mail, 
-  Lock, 
-  Eye, 
-  EyeOff, 
-  User, 
-  Building2,
-  CheckCircle2
-} from "lucide-react";
+import { Car, UserPlus, Eye, EyeOff, Mail, Lock, User, Building2 } from "lucide-react";
+import type { UserRole } from "@/types/supabase";
 
 export default function SignUp() {
   const [formData, setFormData] = useState({
@@ -22,11 +14,10 @@ export default function SignUp() {
     password: "",
     confirmPassword: "",
   });
-  const [role, setRole] = useState<"user" | "owner">("user");
+  const [role, setRole] = useState<UserRole>("user");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [verificationSent, setVerificationSent] = useState(false);
   const [formErrors, setFormErrors] = useState({
     email: "",
     fullName: "",
@@ -92,35 +83,13 @@ export default function SignUp() {
 
     try {
       await signUp(formData.email, formData.password, formData.fullName, role);
-      setVerificationSent(true);
       toast.success("Please check your email to verify your account!");
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Failed to sign up");
-      setVerificationSent(false);
     } finally {
       setLoading(false);
     }
   };
-
-  if (verificationSent) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-teal-600 to-purple-700 flex flex-col items-center justify-center p-4">
-        <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8 animate-fade-in-up text-center">
-          <CheckCircle2 className="w-16 h-16 text-teal-600 mx-auto mb-6" />
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">Check Your Email</h2>
-          <p className="text-gray-600 mb-8">
-            We've sent a verification link to your email address. Please click the link to verify your account.
-          </p>
-          <Button
-            onClick={() => setVerificationSent(false)}
-            className="bg-teal-600 hover:bg-teal-700 text-white py-3 px-6 rounded-lg font-medium text-lg hover:scale-105 transition-all"
-          >
-            Resend Verification Email
-          </Button>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-teal-600 to-purple-700 flex flex-col items-center justify-center p-4">
@@ -235,9 +204,6 @@ export default function SignUp() {
                 {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
               </button>
             </div>
-            <p className="text-sm text-gray-500 mt-1">
-              Must be at least 8 characters with 1 number and 1 special character
-            </p>
             {formErrors.password && (
               <p className="text-red-500 text-sm mt-1">{formErrors.password}</p>
             )}
@@ -278,7 +244,9 @@ export default function SignUp() {
           >
             {loading ? (
               <>
-                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate
+
+-spin" />
                 <span>Creating Account...</span>
               </>
             ) : (
@@ -292,7 +260,7 @@ export default function SignUp() {
 
         <p className="text-center mt-8 text-gray-600">
           Already have an account?{" "}
-          <Link to="/signin" target="_blank" rel="noopener noreferrer" className="text-teal-600 hover:text-teal-700 hover:underline font-medium">
+          <Link to="/signin" className="text-teal-600 hover:text-teal-700 hover:underline font-medium">
             Sign in
           </Link>
         </p>

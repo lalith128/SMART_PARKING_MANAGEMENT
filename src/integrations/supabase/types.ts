@@ -9,27 +9,60 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      profiles: {
+      parking_spaces: {
         Row: {
-          avatar_url: string | null
+          address: string
+          bike_capacity: number
+          car_capacity: number
           created_at: string
+          hourly_rate: number
           id: string
-          updated_at: string
-          username: string | null
+          location: Json
+          owner_id: string
         }
         Insert: {
-          avatar_url?: string | null
+          address: string
+          bike_capacity: number
+          car_capacity: number
           created_at?: string
-          id: string
-          updated_at?: string
-          username?: string | null
+          hourly_rate: number
+          id?: string
+          location: Json
+          owner_id: string
         }
         Update: {
-          avatar_url?: string | null
+          address?: string
+          bike_capacity?: number
+          car_capacity?: number
           created_at?: string
+          hourly_rate?: number
           id?: string
-          updated_at?: string
-          username?: string | null
+          location?: Json
+          owner_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string | null
+          full_name: string
+          id: string
+          role: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          full_name: string
+          id: string
+          role: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          full_name?: string
+          id?: string
+          role?: string
+          updated_at?: string | null
         }
         Relationships: []
       }
