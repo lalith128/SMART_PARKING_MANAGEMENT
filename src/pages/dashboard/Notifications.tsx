@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { format } from "date-fns";
 import {
@@ -65,7 +66,7 @@ export default function Notifications() {
     }
   };
 
-  const markAsRead = async (id: number) => {
+  const markAsRead = async (id: string) => {
     try {
       const { error } = await supabase
         .from('notifications')
@@ -83,7 +84,7 @@ export default function Notifications() {
     }
   };
 
-  const deleteNotification = async (id: number) => {
+  const deleteNotification = async (id: string) => {
     try {
       const { error } = await supabase
         .from('notifications')
