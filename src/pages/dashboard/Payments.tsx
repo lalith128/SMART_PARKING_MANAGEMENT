@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { format } from "date-fns";
 import { CreditCard, Clock, CheckCircle, XCircle } from "lucide-react";
@@ -31,7 +32,7 @@ import type { Database } from "@/types/supabase";
 
 type Payment = Database["public"]["Tables"]["payments"]["Row"] & {
   bookings: Database["public"]["Tables"]["bookings"]["Row"] & {
-    parking_lots: Database["public"]["Tables"]["parking_lots"]["Row"];
+    parking_spaces: Database["public"]["Tables"]["parking_spaces"]["Row"];
   };
 };
 
@@ -71,7 +72,7 @@ export default function Payments() {
     try {
       const { data, error } = await supabase
         .from('payments')
-        .select('*, bookings(*, parking_lots(*))')
+        .select('*, bookings(*, parking_spaces(*))')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -163,7 +164,7 @@ export default function Payments() {
           <TableHeader>
             <TableRow>
               <TableHead>Date</TableHead>
-              <TableHead>Parking Lot</TableHead>
+              <TableHead>Parking Space</TableHead>
               <TableHead>Amount</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Method</TableHead>
@@ -184,10 +185,10 @@ export default function Payments() {
                     {format(new Date(payment.created_at), "MMM d, yyyy")}
                   </TableCell>
                   <TableCell>
-                    {payment.bookings.parking_lots.name}
+                    {payment.bookings.parking_spaces.address}
                   </TableCell>
                   <TableCell>
-                    ${payment.amount}
+                    ₹{payment.amount}
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
@@ -252,8 +253,8 @@ export default function Payments() {
             {selectedPayment && (
               <div className="rounded-lg bg-gray-50 p-4">
                 <div className="text-sm text-gray-600">
-                  <p>Amount: ${selectedPayment.amount}</p>
-                  <p>Parking Lot: {selectedPayment.bookings.parking_lots.name}</p>
+                  <p>Amount: ₹{selectedPayment.amount}</p>
+                  <p>Parking Space: {selectedPayment.bookings.parking_spaces.address}</p>
                 </div>
               </div>
             )}
