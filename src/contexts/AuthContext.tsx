@@ -1,3 +1,4 @@
+
 import { createContext, useContext, useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
@@ -11,7 +12,6 @@ type AuthContextType = {
   signIn: (email: string, password: string) => Promise<{ data: { user: User }, error: null } | { data: null, error: Error }>;
   signUp: (email: string, password: string, fullName: string, role: UserRole) => Promise<void>;
   signOut: () => Promise<void>;
-  resetPassword: (email: string) => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType>({
@@ -21,7 +21,6 @@ const AuthContext = createContext<AuthContextType>({
   signIn: async (email: string, password: string) => ({ data: null, error: new Error('Not implemented') }),
   signUp: async () => {},
   signOut: async () => {},
-  resetPassword: async () => {},
 });
 
 export const useAuth = () => {
@@ -92,7 +91,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         handleRoleBasedNavigation(role);
       } else {
         setUserRole(null);
-        if (!['/signin', '/signup', '/verify-email', '/check-email'].includes(location.pathname)) {
+        if (!['/signin', '/signup'].includes(location.pathname)) {
           navigate('/');
         }
       }
@@ -121,7 +120,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     user,
     loading,
     userRole,
-    signIn: async (email: string, password: string) => ({ data: null, error: new Error('Not implemented') }),
+    signIn: async (email: string, password: string) => {
+      try {
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+        if (error) throw error;
+        return { data, error: null };
+      } catch (error) {
+        console.error('Error signing in:', error);
+        return { data: null, error: error as Error };
+      }
+    },
     signUp: async (email: string, password: string, fullName: string, role: UserRole) => {
       console.log("Starting sign up process in AuthContext...", { email, fullName, role });
       try {
@@ -181,37 +192,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
     },
     signOut: async () => {
-      console.log("Starting sign out process in AuthContext...");
       try {
         const { error } = await supabase.auth.signOut();
-        console.log("Supabase auth response:", { error });
-        
-        if (error) {
-          console.error("Supabase auth error:", error);
-          throw error;
-        }
+        if (error) throw error;
         setUserRole(null);
         navigate('/');
       } catch (error) {
         console.error('Error in signOut:', error);
-        throw error;
-      }
-    },
-    resetPassword: async (email: string) => {
-      console.log("Starting password reset process in AuthContext...");
-      try {
-        const { error } = await supabase.auth.resetPasswordForEmail(email, {
-          redirectTo: `${window.location.origin}/reset-password`,
-        });
-        console.log("Supabase auth response:", { error });
-        
-        if (error) {
-          console.error("Supabase auth error:", error);
-          throw error;
-        }
-        navigate('/check-email');
-      } catch (error) {
-        console.error('Error in resetPassword:', error);
         throw error;
       }
     },
