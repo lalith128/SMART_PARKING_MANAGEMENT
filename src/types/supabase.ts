@@ -39,6 +39,32 @@ export interface Database {
           updated_at?: string
         }
       }
+      notifications: {
+        Row: {
+          id: string
+          user_id: string
+          message: string
+          type: NotificationType
+          is_read: boolean
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          message: string
+          type: NotificationType
+          is_read?: boolean
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          message?: string
+          type?: NotificationType
+          is_read?: boolean
+          created_at?: string
+        }
+      }
       parking_spaces: {
         Row: {
           id: string

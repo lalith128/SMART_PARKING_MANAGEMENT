@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { format } from "date-fns";
 import { Clock, Calendar, MapPin } from "lucide-react";
@@ -20,7 +21,7 @@ import { supabase } from "@/lib/supabase";
 import type { Database } from "@/types/supabase";
 
 type Booking = Database["public"]["Tables"]["bookings"]["Row"] & {
-  parking_lots: Database["public"]["Tables"]["parking_lots"]["Row"];
+  parking_spaces: Database["public"]["Tables"]["parking_spaces"]["Row"];
 };
 
 export default function MyBookings() {
@@ -56,7 +57,7 @@ export default function MyBookings() {
     try {
       const { data, error } = await supabase
         .from('bookings')
-        .select('*, parking_lots(*)')
+        .select('*, parking_spaces(*)')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -73,7 +74,7 @@ export default function MyBookings() {
     }
   };
 
-  const handleCancel = async (bookingId: number) => {
+  const handleCancel = async (bookingId: string) => {
     try {
       const { error } = await supabase
         .from('bookings')
@@ -96,7 +97,7 @@ export default function MyBookings() {
     }
   };
 
-  const handleExtend = async (bookingId: number) => {
+  const handleExtend = async (bookingId: string) => {
     try {
       // Add 1 hour to the end time
       const { error } = await supabase
@@ -129,10 +130,10 @@ export default function MyBookings() {
   const BookingCard = ({ booking }: { booking: Booking }) => (
     <Card>
       <CardHeader>
-        <CardTitle>{booking.parking_lots.name}</CardTitle>
+        <CardTitle>{booking.parking_spaces.address}</CardTitle>
         <CardDescription className="flex items-center gap-1">
           <MapPin className="h-4 w-4" />
-          {booking.parking_lots.location}
+          {`${booking.parking_spaces.location.lat}, ${booking.parking_spaces.location.lng}`}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -154,7 +155,7 @@ export default function MyBookings() {
 
           <div className="flex items-center justify-between">
             <span className="font-medium">
-              ${booking.parking_lots.price_per_hour}/hr
+              ₹{booking.parking_spaces.hourly_rate}/hr
             </span>
             {booking.status === 'active' && (
               <div className="space-x-2">
