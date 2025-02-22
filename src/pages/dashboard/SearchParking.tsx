@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { MapPin, Clock, Car } from "lucide-react";
@@ -16,7 +17,7 @@ import {
 import { supabase } from "@/lib/supabase";
 import type { Database } from "@/types/supabase";
 
-type ParkingLot = Database["public"]["Tables"]["parking_lots"]["Row"];
+type ParkingSpace = Database["public"]["Tables"]["parking_spaces"]["Row"];
 
 export default function SearchParking() {
   const navigate = useNavigate();
@@ -24,43 +25,42 @@ export default function SearchParking() {
   const [location, setLocation] = useState("");
   const [maxPrice, setMaxPrice] = useState(50);
   const [distance, setDistance] = useState("5");
-  const [parkingLots, setParkingLots] = useState<ParkingLot[]>([]);
+  const [parkingSpaces, setParkingSpaces] = useState<ParkingSpace[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    fetchParkingLots();
+    fetchParkingSpaces();
   }, []);
 
-  const fetchParkingLots = async () => {
+  const fetchParkingSpaces = async () => {
     setLoading(true);
     try {
       const { data, error } = await supabase
-        .from("parking_lots")
-        .select("*")
-        .gt("available_slots", 0)
-        .order("price_per_hour");
+        .from('parking_spaces')
+        .select('*')
+        .order('hourly_rate');
 
       if (error) throw error;
-      setParkingLots(data || []);
+      setParkingSpaces(data || []);
     } catch (error) {
-      console.error("Error fetching parking lots:", error);
+      console.error("Error fetching parking spaces:", error);
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to load parking lots. Please try again.",
+        description: "Failed to load parking spaces. Please try again.",
       });
     } finally {
       setLoading(false);
     }
   };
 
-  const handleBook = async (parkingLotId: number) => {
+  const handleBook = async (parkingSpaceId: string) => {
     try {
       const { data, error } = await supabase
-        .from("bookings")
+        .from('bookings')
         .insert([
           {
-            parking_lot_id: parkingLotId,
+            parking_space_id: parkingSpaceId,
             start_time: new Date().toISOString(),
             status: "pending",
           },
@@ -86,11 +86,11 @@ export default function SearchParking() {
     }
   };
 
-  const filteredParkingLots = parkingLots.filter((lot) => {
+  const filteredParkingSpaces = parkingSpaces.filter((space) => {
     const matchesLocation = location
-      ? lot.location.toLowerCase().includes(location.toLowerCase())
+      ? space.address.toLowerCase().includes(location.toLowerCase())
       : true;
-    const matchesPrice = lot.price_per_hour <= maxPrice;
+    const matchesPrice = space.hourly_rate <= maxPrice;
     return matchesLocation && matchesPrice;
   });
 
@@ -129,7 +129,7 @@ export default function SearchParking() {
             className="py-4"
           />
           <div className="text-sm text-gray-500">
-            ${maxPrice}
+            ₹{maxPrice}
           </div>
         </div>
 
@@ -153,40 +153,40 @@ export default function SearchParking() {
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {loading ? (
           <div className="col-span-full text-center py-12">
-            Loading parking lots...
+            Loading parking spaces...
           </div>
-        ) : filteredParkingLots.length === 0 ? (
+        ) : filteredParkingSpaces.length === 0 ? (
           <div className="col-span-full text-center py-12">
-            No parking lots found. Try adjusting your filters.
+            No parking spaces found. Try adjusting your filters.
           </div>
         ) : (
-          filteredParkingLots.map((lot) => (
+          filteredParkingSpaces.map((space) => (
             <div
-              key={lot.id}
+              key={space.id}
               className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow"
             >
               <div className="flex items-start justify-between">
                 <div>
-                  <h3 className="font-semibold text-gray-900">{lot.name}</h3>
+                  <h3 className="font-semibold text-gray-900">{space.address}</h3>
                   <p className="mt-1 text-sm text-gray-600 flex items-center gap-1">
                     <MapPin className="h-4 w-4" />
-                    {lot.location}
+                    {`${space.location.lat}, ${space.location.lng}`}
                   </p>
                 </div>
                 <div className="text-right">
                   <p className="font-semibold text-teal-600">
-                    ${lot.price_per_hour}/hr
+                    ₹{space.hourly_rate}/hr
                   </p>
                   <p className="mt-1 text-sm text-gray-600 flex items-center gap-1 justify-end">
                     <Car className="h-4 w-4" />
-                    {lot.available_slots} slots
+                    {space.car_capacity} cars, {space.bike_capacity} bikes
                   </p>
                 </div>
               </div>
 
               <div className="mt-4">
                 <Button
-                  onClick={() => handleBook(lot.id)}
+                  onClick={() => handleBook(space.id)}
                   className="w-full bg-teal-600 hover:bg-teal-700"
                 >
                   Book Now
