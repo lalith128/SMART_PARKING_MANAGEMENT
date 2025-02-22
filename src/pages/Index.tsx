@@ -19,14 +19,11 @@ import {
 } from "lucide-react";
 
 export default function Index() {
-  const { user } = useAuth();
   const navigate = useNavigate();
-
   const handleNavigation = (path: string) => {
     window.scrollTo(0, 0);
     navigate(path);
   };
-
   const features = [
     {
       icon: <MapPin className="w-12 h-12 text-teal-500" />,
@@ -83,12 +80,12 @@ export default function Index() {
                 <Button asChild variant="ghost" 
                   className="text-gray-700 hover:text-teal-500 hover:bg-teal-50"
                 >
-                  <Link to="/signin">Sign In</Link>
+                  <Link to="/signin" target="_blank" rel="noopener noreferrer">Sign In</Link>
                 </Button>
                 <Button asChild variant="default" 
                   className="bg-teal-500 hover:bg-teal-600 text-white hover:scale-105 transition-transform shadow-md"
                 >
-                  <Link to="/signin">Sign Up</Link>
+                  <Link to="/signup" target="_blank" rel="noopener noreferrer">Sign Up</Link>
                 </Button>
               </div>
             </div>
@@ -115,7 +112,7 @@ export default function Index() {
             <div className="flex gap-4 animate-fade-in-up delay-400 justify-center">
               <Button asChild size="lg" 
                 className="bg-teal-500 text-white hover:bg-teal-600 hover:scale-105 transition-all shadow-lg px-8 py-6 text-lg group">
-                <Link to="/signin">
+                <Link to="/signup" target="_blank" rel="noopener noreferrer">
                   Sign Up <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </Link>
               </Button>
@@ -254,7 +251,7 @@ export default function Index() {
           </p>
           <Button asChild size="lg" variant="default" 
             className="bg-white text-teal-600 hover:bg-gray-100 hover:scale-105 transition-transform shadow-md animate-fade-in-up delay-400">
-            <Link to="/signin">Sign Up Now <ArrowRight className="ml-2" /></Link>
+            <Link to="/signup" target="_blank" rel="noopener noreferrer">Sign Up Now <ArrowRight className="ml-2" /></Link>
           </Button>
         </div>
       </div>
