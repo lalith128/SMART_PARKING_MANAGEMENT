@@ -1,69 +1,54 @@
-# Welcome to your Lovable project
+# 🚗 Smart Parking Management System  
 
-## Project info
+A web and mobile-based **Smart Parking Management System** that allows **parking lot owners** to manage their spaces, **users** to find and book parking slots, and **admins** to oversee operations.
 
-**URL**: https://lovable.dev/projects/58bc16b4-9e64-4859-b685-f106245c0731
+---
 
-## How can I edit this code?
+## 📌 Features  
 
-There are several ways of editing your application.
+### 🔹 **User & Owner Management**
+- Register/login via Email (OTP-based authentication).
+- Edit profiles, link bank accounts (for owners).
+- Manage past bookings and view parking history.
 
-**Use Lovable**
+### 🔹 **Parking Slot & Booking Management**
+- Search for parking slots by location, price, or name.
+- Real-time availability tracking.
+- Pre-book and extend parking duration.
+- Cancel bookings and get refunds.
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/58bc16b4-9e64-4859-b685-f106245c0731) and start prompting.
+### 🔹 **Payment & Revenue Management**
+- Secure payments.
+- Track payment history.
+- Dynamic pricing based on demand and time.
+- Revenue dashboard for parking lot owners.
 
-Changes made via Lovable will be committed automatically to this repo.
+### 🔹 **Admin Management**
+- Manage users and parking lot owners (approve/block).
+- Handle disputes and complaints.
+- View analytics and generate reports.
 
-**Use your preferred IDE**
+### 🔹 **Notifications, Feedback & Analytics**
+- Real-time alerts (booking confirmation, slot availability, etc.).
+- Collect and analyze user feedback.
+- Provide insights on parking lot performance.
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+---
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+## 💻 Tech Stack  
 
-Follow these steps:
+### **Frontend**  
+- React.js (Web)  
+- Tailwind CSS 
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+### **Backend**  
+- Node.js + Express.js (API)  
+- PostgreSQL / MongoDB (Database)  
+---
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+## 🛠 Installation & Setup  
 
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
-
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with .
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/58bc16b4-9e64-4859-b685-f106245c0731) and click on Share -> Publish.
-
-## I want to use a custom domain - is that possible?
-
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+### **1️⃣ Clone the Repository**
+```bash
+git clone https://github.com/lalith128/SMART_PARKING_MANAGEMENT
+cd smart-parking
