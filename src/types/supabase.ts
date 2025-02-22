@@ -1,3 +1,4 @@
+
 export type Json =
   | string
   | number
@@ -21,113 +22,100 @@ export interface Database {
           full_name: string
           role: UserRole
           created_at: string
+          updated_at?: string
         }
         Insert: {
           id: string
           full_name: string
           role: UserRole
           created_at?: string
+          updated_at?: string
         }
         Update: {
           id?: string
           full_name?: string
           role?: UserRole
           created_at?: string
+          updated_at?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "profiles_id_fkey"
-            columns: ["id"]
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          }
-        ]
       }
-      parking_lots: {
+      parking_spaces: {
         Row: {
-          id: number
-          owner_id: string
-          name: string
-          location: string
-          total_slots: number
-          price_per_hour: number
+          id: string
           created_at: string
+          owner_id: string
+          location: {
+            lat: number
+            lng: number
+          }
+          address: string
+          hourly_rate: number
+          bike_capacity: number
+          car_capacity: number
         }
         Insert: {
-          id?: number
-          owner_id: string
-          name: string
-          location: string
-          total_slots: number
-          price_per_hour: number
+          id?: string
           created_at?: string
+          owner_id: string
+          location: {
+            lat: number
+            lng: number
+          }
+          address: string
+          hourly_rate: number
+          bike_capacity: number
+          car_capacity: number
         }
         Update: {
-          id?: number
-          owner_id?: string
-          name?: string
-          location?: string
-          total_slots?: number
-          price_per_hour?: number
+          id?: string
           created_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "parking_lots_owner_id_fkey"
-            columns: ["owner_id"]
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
+          owner_id?: string
+          location?: {
+            lat: number
+            lng: number
           }
-        ]
+          address?: string
+          hourly_rate?: number
+          bike_capacity?: number
+          car_capacity?: number
+        }
       }
       bookings: {
         Row: {
-          id: number
+          id: string
           user_id: string
-          parking_lot_id: number
+          parking_space_id: string
           start_time: string
-          end_time: string | null
-          total_cost: number | null
+          end_time?: string
           status: BookingStatus
           created_at: string
+          total_cost?: number
         }
         Insert: {
-          id?: number
+          id?: string
           user_id: string
-          parking_lot_id: number
+          parking_space_id: string
           start_time: string
-          end_time?: string | null
+          end_time?: string
           status?: BookingStatus
           created_at?: string
+          total_cost?: number
         }
         Update: {
-          id?: number
+          id?: string
           user_id?: string
-          parking_lot_id?: number
+          parking_space_id?: string
           start_time?: string
-          end_time?: string | null
+          end_time?: string
           status?: BookingStatus
           created_at?: string
+          total_cost?: number
         }
-        Relationships: [
-          {
-            foreignKeyName: "bookings_user_id_fkey"
-            columns: ["user_id"]
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "bookings_parking_lot_id_fkey"
-            columns: ["parking_lot_id"]
-            referencedRelation: "parking_lots"
-            referencedColumns: ["id"]
-          }
-        ]
       }
       payments: {
         Row: {
-          id: number
-          booking_id: number
+          id: string
+          booking_id: string
           user_id: string
           amount: number
           payment_method: PaymentMethod
@@ -135,8 +123,8 @@ export interface Database {
           created_at: string
         }
         Insert: {
-          id?: number
-          booking_id: number
+          id?: string
+          booking_id: string
           user_id: string
           amount: number
           payment_method: PaymentMethod
@@ -144,72 +132,15 @@ export interface Database {
           created_at?: string
         }
         Update: {
-          id?: number
-          booking_id?: number
+          id?: string
+          booking_id?: string
           user_id?: string
           amount?: number
           payment_method?: PaymentMethod
           status?: PaymentStatus
           created_at?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "payments_booking_id_fkey"
-            columns: ["booking_id"]
-            referencedRelation: "bookings"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "payments_user_id_fkey"
-            columns: ["user_id"]
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          }
-        ]
       }
-      notifications: {
-        Row: {
-          id: number
-          user_id: string
-          message: string
-          type: NotificationType
-          is_read: boolean
-          created_at: string
-        }
-        Insert: {
-          id?: number
-          user_id: string
-          message: string
-          type: NotificationType
-          is_read?: boolean
-          created_at?: string
-        }
-        Update: {
-          id?: number
-          user_id?: string
-          message?: string
-          type?: NotificationType
-          is_read?: boolean
-          created_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "notifications_user_id_fkey"
-            columns: ["user_id"]
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          }
-        ]
-      }
-    }
-    Views: {
-      [_ in never]: never
-    }
-    Functions: {
-      [_ in never]: never
-    }
-    Enums: {
-      [_ in never]: never
     }
   }
 }

@@ -1,21 +1,17 @@
+
 import { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
-import { supabase } from '../../lib/supabase';
+import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/contexts/AuthContext';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card } from '@/components/ui/card';
+import { toast } from 'sonner';
 import 'leaflet/dist/leaflet.css';
 import { Icon } from 'leaflet';
+import type { Database } from '@/types/supabase';
 
-interface ParkingSpace {
-  id?: string;
-  location: {
-    lat: number;
-    lng: number;
-  };
-  address: string;
-  hourlyRate: number;
-  bikeCapacity: number;
-  carCapacity: number;
-  owner_id: string;
-}
+type ParkingSpace = Database['public']['Tables']['parking_spaces']['Row'];
 
 const LocationPicker = ({ onLocationSelect }: { onLocationSelect: (lat: number, lng: number) => void }) => {
   useMapEvents({
@@ -27,21 +23,25 @@ const LocationPicker = ({ onLocationSelect }: { onLocationSelect: (lat: number, 
 };
 
 export default function OwnerDashboard() {
+  const { user } = useAuth();
   const [parkingSpaces, setParkingSpaces] = useState<ParkingSpace[]>([]);
   const [selectedLocation, setSelectedLocation] = useState<[number, number] | null>(null);
-  const [address, setAddress] = useState('');
-  const [hourlyRate, setHourlyRate] = useState('');
-  const [bikeCapacity, setBikeCapacity] = useState('');
-  const [carCapacity, setCarCapacity] = useState('');
+  const [formData, setFormData] = useState({
+    address: '',
+    hourly_rate: '',
+    bike_capacity: '',
+    car_capacity: '',
+  });
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    loadParkingSpaces();
-  }, []);
+    if (user) {
+      loadParkingSpaces();
+    }
+  }, [user]);
 
   const loadParkingSpaces = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
       const { data, error } = await supabase
@@ -50,22 +50,25 @@ export default function OwnerDashboard() {
         .eq('owner_id', user.id);
 
       if (error) throw error;
-      setParkingSpaces(data || []);
+      setParkingSpaces(data);
     } catch (error) {
       console.error('Error loading parking spaces:', error);
+      toast.error('Failed to load parking spaces');
     }
   };
 
   const handleLocationSelect = async (lat: number, lng: number) => {
     setSelectedLocation([lat, lng]);
     
-    // Reverse geocoding using Nominatim
     try {
       const response = await fetch(
         `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`
       );
       const data = await response.json();
-      setAddress(data.display_name || '');
+      setFormData(prev => ({
+        ...prev,
+        address: data.display_name || '',
+      }));
     } catch (error) {
       console.error('Error getting address:', error);
     }
@@ -73,41 +76,42 @@ export default function OwnerDashboard() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedLocation) return;
+    if (!selectedLocation || !user) return;
 
     setLoading(true);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('No user found');
-
-      const parkingSpace = {
+      const parkingSpaceData = {
         location: {
           lat: selectedLocation[0],
           lng: selectedLocation[1],
         },
-        address,
-        hourlyRate: parseFloat(hourlyRate),
-        bikeCapacity: parseInt(bikeCapacity),
-        carCapacity: parseInt(carCapacity),
+        address: formData.address,
+        hourly_rate: parseFloat(formData.hourly_rate),
+        bike_capacity: parseInt(formData.bike_capacity),
+        car_capacity: parseInt(formData.car_capacity),
         owner_id: user.id,
       };
 
       const { error } = await supabase
         .from('parking_spaces')
-        .insert([parkingSpace]);
+        .insert([parkingSpaceData]);
 
       if (error) throw error;
 
+      toast.success('Parking space added successfully');
+      loadParkingSpaces();
+      
       // Reset form
       setSelectedLocation(null);
-      setAddress('');
-      setHourlyRate('');
-      setBikeCapacity('');
-      setCarCapacity('');
-      
-      await loadParkingSpaces();
+      setFormData({
+        address: '',
+        hourly_rate: '',
+        bike_capacity: '',
+        car_capacity: '',
+      });
     } catch (error) {
       console.error('Error saving parking space:', error);
+      toast.error('Failed to save parking space');
     } finally {
       setLoading(false);
     }
@@ -115,14 +119,14 @@ export default function OwnerDashboard() {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-6">Owner Dashboard</h1>
+      <h1 className="text-3xl font-bold mb-6">Manage Parking Spaces</h1>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <h2 className="text-xl font-semibold mb-4">Add Parking Space</h2>
           <div className="h-[400px] mb-4 rounded-lg overflow-hidden">
             <MapContainer
-              center={[20.5937, 78.9629]} // Center of India
+              center={[20.5937, 78.9629]}
               zoom={5}
               style={{ height: '100%', width: '100%' }}
             >
@@ -139,56 +143,52 @@ export default function OwnerDashboard() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700">Address</label>
-              <input
+              <label className="block text-sm font-medium mb-2">Address</label>
+              <Input
                 type="text"
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                value={formData.address}
+                onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                 required
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">Hourly Rate (₹)</label>
-              <input
+              <label className="block text-sm font-medium mb-2">Hourly Rate (₹)</label>
+              <Input
                 type="number"
-                value={hourlyRate}
-                onChange={(e) => setHourlyRate(e.target.value)}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                value={formData.hourly_rate}
+                onChange={(e) => setFormData({ ...formData, hourly_rate: e.target.value })}
                 required
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">Bike Capacity</label>
-              <input
+              <label className="block text-sm font-medium mb-2">Bike Capacity</label>
+              <Input
                 type="number"
-                value={bikeCapacity}
-                onChange={(e) => setBikeCapacity(e.target.value)}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                value={formData.bike_capacity}
+                onChange={(e) => setFormData({ ...formData, bike_capacity: e.target.value })}
                 required
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">Car Capacity</label>
-              <input
+              <label className="block text-sm font-medium mb-2">Car Capacity</label>
+              <Input
                 type="number"
-                value={carCapacity}
-                onChange={(e) => setCarCapacity(e.target.value)}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                value={formData.car_capacity}
+                onChange={(e) => setFormData({ ...formData, car_capacity: e.target.value })}
                 required
               />
             </div>
 
-            <button
+            <Button
               type="submit"
               disabled={loading || !selectedLocation}
-              className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:bg-blue-300"
+              className="w-full"
             >
               {loading ? 'Saving...' : 'Add Parking Space'}
-            </button>
+            </Button>
           </form>
         </div>
 
@@ -196,13 +196,13 @@ export default function OwnerDashboard() {
           <h2 className="text-xl font-semibold mb-4">Your Parking Spaces</h2>
           <div className="space-y-4">
             {parkingSpaces.map((space) => (
-              <div key={space.id} className="border rounded-lg p-4 shadow-sm">
+              <Card key={space.id} className="p-4">
                 <h3 className="font-medium">{space.address}</h3>
-                <p className="text-sm text-gray-600">Hourly Rate: ₹{space.hourlyRate}</p>
+                <p className="text-sm text-gray-600">Hourly Rate: ₹{space.hourly_rate}</p>
                 <p className="text-sm text-gray-600">
-                  Capacity: {space.bikeCapacity} bikes, {space.carCapacity} cars
+                  Capacity: {space.bike_capacity} bikes, {space.car_capacity} cars
                 </p>
-              </div>
+              </Card>
             ))}
           </div>
         </div>
