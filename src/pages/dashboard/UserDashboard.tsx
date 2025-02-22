@@ -1,3 +1,4 @@
+
 import { Routes, Route, Navigate } from "react-router-dom";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import SearchParking from "./SearchParking";
@@ -11,6 +12,7 @@ export default function UserDashboard() {
     <DashboardLayout>
       <Routes>
         <Route index element={<SearchParking />} />
+        <Route path="search" element={<SearchParking />} />
         <Route path="bookings" element={<MyBookings />} />
         <Route path="payments" element={<Payments />} />
         <Route path="profile" element={<Profile />} />
