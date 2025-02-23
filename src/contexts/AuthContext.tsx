@@ -136,7 +136,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     signUp: async (email: string, password: string, fullName: string, role: UserRole) => {
       console.log("Starting sign up process in AuthContext...", { email, fullName, role });
       try {
-        // Step 1: Sign up the user with auth
         const { error: signUpError, data } = await supabase.auth.signUp({
           email,
           password,
@@ -162,23 +161,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         }
 
         try {
-          // Step 2: Create the profile
-          const { error: profileError } = await supabase
-            .from('profiles')
-            .insert([
-              {
-                id: data.user.id,
-                full_name: fullName,
-                role: role,
-              },
-            ]);
+          // The profile will be created automatically by the database trigger
+          console.log("Profile will be created by database trigger");
           
-          console.log("Profile creation response:", { profileError });
-          
-          if (profileError) {
-            console.error("Error creating profile:", profileError);
-            throw profileError;
-          }
         } catch (profileError) {
           console.error("Failed to create profile:", profileError);
           // Don't throw here, we still want to show the verification page
