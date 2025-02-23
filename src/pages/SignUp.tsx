@@ -42,28 +42,24 @@ export default function SignUp() {
       confirmPassword: "",
     };
     
-    // Email validation
     if (!formData.email) {
       errors.email = "Email is required";
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       errors.email = "Please enter a valid email address";
     }
 
-    // Full name validation
     if (!formData.fullName) {
       errors.fullName = "Full name is required";
     } else if (formData.fullName.length < 2) {
       errors.fullName = "Full name must be at least 2 characters";
     }
 
-    // Password validation
     if (!formData.password) {
       errors.password = "Password is required";
     } else if (!validatePassword(formData.password)) {
       errors.password = "Password must be at least 8 characters with 1 number and 1 special character";
     }
 
-    // Confirm password validation
     if (formData.password !== formData.confirmPassword) {
       errors.confirmPassword = "Passwords do not match";
     }
@@ -84,7 +80,9 @@ export default function SignUp() {
     try {
       await signUp(formData.email, formData.password, formData.fullName, role);
       toast.success("Please check your email to verify your account!");
+      navigate('/verify-email');
     } catch (error) {
+      console.error('Error in signUp:', error);
       toast.error(error instanceof Error ? error.message : "Failed to sign up");
     } finally {
       setLoading(false);
@@ -244,9 +242,7 @@ export default function SignUp() {
           >
             {loading ? (
               <>
-                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate
-
--spin" />
+                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                 <span>Creating Account...</span>
               </>
             ) : (
