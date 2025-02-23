@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -150,7 +151,7 @@ export default function SignIn() {
 
         <p className="text-center mt-8 text-gray-600">
           New to SmartPark?{" "}
-          <Link to="/signup" target="_blank" rel="noopener noreferrer" className="text-teal-600 hover:text-teal-700 hover:underline font-medium">
+          <Link to="/signup" className="text-teal-600 hover:text-teal-700 hover:underline font-medium">
             Sign up
           </Link>
         </p>
