@@ -72,8 +72,8 @@ const AppRoutes = () => {
       <Route 
         path="/signin" 
         element={
-          user && location.state?.from ? (
-            <Navigate to={location.state.from.pathname || "/dashboard/user"} replace />
+          user ? (
+            <Navigate to={location.state?.from?.pathname || "/dashboard/user"} replace />
           ) : (
             <SignIn />
           )
@@ -82,8 +82,8 @@ const AppRoutes = () => {
       <Route 
         path="/signup" 
         element={
-          user && location.state?.from ? (
-            <Navigate to={location.state.from.pathname || "/dashboard/user"} replace />
+          user ? (
+            <Navigate to={location.state?.from?.pathname || "/dashboard/user"} replace />
           ) : (
             <SignUp />
           )
@@ -91,6 +91,7 @@ const AppRoutes = () => {
       />
       <Route path="/verify-email" element={<VerifyEmail />} />
       <Route path="/check-email" element={<CheckEmail />} />
+      <Route path="/auth/callback" element={<VerifyEmail />} />
 
       {/* Protected user routes */}
       <Route

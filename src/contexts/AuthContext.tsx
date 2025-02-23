@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
@@ -160,15 +159,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           throw new Error('User data not available after signup');
         }
 
-        try {
-          // The profile will be created automatically by the database trigger
-          console.log("Profile will be created by database trigger");
-          
-        } catch (profileError) {
-          console.error("Failed to create profile:", profileError);
-          // Don't throw here, we still want to show the verification page
-        }
-        
         // After successful sign-up, show verification message
         navigate('/verify-email');
       } catch (error) {
