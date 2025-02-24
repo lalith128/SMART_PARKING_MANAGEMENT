@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
@@ -107,7 +106,7 @@ export default function SearchParking() {
             
             <div className="mt-4 flex items-center justify-between">
               <span className="text-xl font-bold text-green-600">
-                ₹{space.hourly_rate}/hr
+                ${space.hourly_rate}/hr
               </span>
               <Button variant="outline" size="sm">
                 View Details

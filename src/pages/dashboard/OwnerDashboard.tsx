@@ -206,11 +206,13 @@ export default function OwnerDashboard() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2">Hourly Rate (₹)</label>
+              <label className="block text-sm font-medium mb-2">Hourly Rate ($)</label>
               <Input
                 type="number"
                 value={formData.hourly_rate}
                 onChange={(e) => setFormData({ ...formData, hourly_rate: e.target.value })}
+                min="0"
+                step="0.01"
                 required
               />
             </div>
@@ -262,7 +264,7 @@ export default function OwnerDashboard() {
               <Card key={space.id} className="p-4">
                 <h3 className="font-medium">{space.address}</h3>
                 <p className="text-sm text-gray-600">{space.district}, {space.state}, {space.country}</p>
-                <p className="text-sm text-gray-600">Hourly Rate: ₹{space.hourly_rate}</p>
+                <p className="text-sm text-gray-600">Hourly Rate: ${space.hourly_rate}</p>
                 <p className="text-sm text-gray-600">
                   Capacity: {space.two_wheeler_capacity} two-wheelers, {space.four_wheeler_capacity} four-wheelers, {space.heavy_vehicle_capacity} heavy vehicles
                 </p>
