@@ -55,6 +55,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     // Check active sessions and sets the user
     supabase.auth.getSession().then(async ({ data: { session } }) => {
+      console.log('Initial session check:', session);
       setUser(session?.user ?? null);
       if (session?.user) {
         const role = await fetchUserRole(session.user.id);
@@ -72,17 +73,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         if (session?.user) {
           const role = await fetchUserRole(session.user.id);
           setUserRole(role);
+          console.log('User role fetched:', role);
         } else {
           setUserRole(null);
         }
         setLoading(false);
 
         if (event === 'SIGNED_IN') {
-          const role = await fetchUserRole(session.user.id);
-          if (role === 'owner') {
-            navigate('/dashboard/owner');
-          } else {
-            navigate('/dashboard/user');
+          if (session?.user?.email_confirmed_at) {
+            const role = await fetchUserRole(session.user.id);
+            if (role === 'owner') {
+              navigate('/dashboard/owner');
+            } else {
+              navigate('/dashboard/user');
+            }
           }
         } else if (event === 'SIGNED_OUT') {
           navigate('/');
@@ -123,11 +127,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     
     if (error) {
       console.error('Signin error:', error);
-    } else {
-      console.log('Signin successful:', data);
+      throw error;
     }
     
-    return { data, error };
+    console.log('Signin successful:', data);
+    return { data };
   };
 
   const signOut = async () => {
