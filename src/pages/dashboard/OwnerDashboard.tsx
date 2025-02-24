@@ -8,7 +8,6 @@ import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { toast } from 'sonner';
 import 'leaflet/dist/leaflet.css';
-import { Icon } from 'leaflet';
 import type { Database } from '@/types/supabase';
 
 type ParkingSpace = Database['public']['Tables']['parking_spaces']['Row'];
@@ -28,9 +27,13 @@ export default function OwnerDashboard() {
   const [selectedLocation, setSelectedLocation] = useState<[number, number] | null>(null);
   const [formData, setFormData] = useState({
     address: '',
+    district: '',
+    state: '',
+    country: '',
     hourly_rate: '',
-    bike_capacity: '',
-    car_capacity: '',
+    two_wheeler_capacity: '',
+    four_wheeler_capacity: '',
+    heavy_vehicle_capacity: '',
   });
   const [loading, setLoading] = useState(false);
 
@@ -65,9 +68,21 @@ export default function OwnerDashboard() {
         `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`
       );
       const data = await response.json();
+      
+      // Parse the address components
+      const address = {
+        road: data.address?.road || '',
+        district: data.address?.suburb || data.address?.city_district || '',
+        state: data.address?.state || '',
+        country: data.address?.country || '',
+      };
+
       setFormData(prev => ({
         ...prev,
-        address: data.display_name || '',
+        address: `${address.road}`,
+        district: address.district,
+        state: address.state,
+        country: address.country,
       }));
     } catch (error) {
       console.error('Error getting address:', error);
@@ -86,9 +101,13 @@ export default function OwnerDashboard() {
           lng: selectedLocation[1],
         },
         address: formData.address,
+        district: formData.district,
+        state: formData.state,
+        country: formData.country,
         hourly_rate: parseFloat(formData.hourly_rate),
-        bike_capacity: parseInt(formData.bike_capacity),
-        car_capacity: parseInt(formData.car_capacity),
+        two_wheeler_capacity: parseInt(formData.two_wheeler_capacity),
+        four_wheeler_capacity: parseInt(formData.four_wheeler_capacity),
+        heavy_vehicle_capacity: parseInt(formData.heavy_vehicle_capacity),
         owner_id: user.id,
       };
 
@@ -105,9 +124,13 @@ export default function OwnerDashboard() {
       setSelectedLocation(null);
       setFormData({
         address: '',
+        district: '',
+        state: '',
+        country: '',
         hourly_rate: '',
-        bike_capacity: '',
-        car_capacity: '',
+        two_wheeler_capacity: '',
+        four_wheeler_capacity: '',
+        heavy_vehicle_capacity: '',
       });
     } catch (error) {
       console.error('Error saving parking space:', error);
@@ -143,11 +166,41 @@ export default function OwnerDashboard() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium mb-2">Address</label>
+              <label className="block text-sm font-medium mb-2">Street Address</label>
               <Input
                 type="text"
                 value={formData.address}
                 onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-2">District</label>
+              <Input
+                type="text"
+                value={formData.district}
+                onChange={(e) => setFormData({ ...formData, district: e.target.value })}
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-2">State</label>
+              <Input
+                type="text"
+                value={formData.state}
+                onChange={(e) => setFormData({ ...formData, state: e.target.value })}
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-2">Country</label>
+              <Input
+                type="text"
+                value={formData.country}
+                onChange={(e) => setFormData({ ...formData, country: e.target.value })}
                 required
               />
             </div>
@@ -163,21 +216,31 @@ export default function OwnerDashboard() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2">Bike Capacity</label>
+              <label className="block text-sm font-medium mb-2">Two Wheeler Capacity</label>
               <Input
                 type="number"
-                value={formData.bike_capacity}
-                onChange={(e) => setFormData({ ...formData, bike_capacity: e.target.value })}
+                value={formData.two_wheeler_capacity}
+                onChange={(e) => setFormData({ ...formData, two_wheeler_capacity: e.target.value })}
                 required
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2">Car Capacity</label>
+              <label className="block text-sm font-medium mb-2">Four Wheeler Capacity</label>
               <Input
                 type="number"
-                value={formData.car_capacity}
-                onChange={(e) => setFormData({ ...formData, car_capacity: e.target.value })}
+                value={formData.four_wheeler_capacity}
+                onChange={(e) => setFormData({ ...formData, four_wheeler_capacity: e.target.value })}
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-2">Heavy Vehicle Capacity</label>
+              <Input
+                type="number"
+                value={formData.heavy_vehicle_capacity}
+                onChange={(e) => setFormData({ ...formData, heavy_vehicle_capacity: e.target.value })}
                 required
               />
             </div>
@@ -198,9 +261,10 @@ export default function OwnerDashboard() {
             {parkingSpaces.map((space) => (
               <Card key={space.id} className="p-4">
                 <h3 className="font-medium">{space.address}</h3>
+                <p className="text-sm text-gray-600">{space.district}, {space.state}, {space.country}</p>
                 <p className="text-sm text-gray-600">Hourly Rate: ₹{space.hourly_rate}</p>
                 <p className="text-sm text-gray-600">
-                  Capacity: {space.bike_capacity} bikes, {space.car_capacity} cars
+                  Capacity: {space.two_wheeler_capacity} two-wheelers, {space.four_wheeler_capacity} four-wheelers, {space.heavy_vehicle_capacity} heavy vehicles
                 </p>
               </Card>
             ))}

@@ -30,7 +30,7 @@ export default function ParkingSearch() {
       const { data, error } = await supabase
         .from('parking_spaces')
         .select('*')
-        .textSearch('address', searchQuery.trim());
+        .textSearch('location_search', searchQuery.trim());
 
       if (error) throw error;
 
@@ -62,7 +62,7 @@ export default function ParkingSearch() {
       <div className="flex gap-2 mb-8">
         <Input
           type="text"
-          placeholder="Enter location (e.g., Chennai, Anna Nagar)"
+          placeholder="Search by address, district, state, or country"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           onKeyDown={(e) => {
@@ -86,10 +86,12 @@ export default function ParkingSearch() {
             <div className="flex justify-between items-start">
               <div>
                 <h3 className="font-semibold text-lg">{space.address}</h3>
-                <p className="text-gray-600">
+                <p className="text-gray-600">{space.district}, {space.state}, {space.country}</p>
+                <p className="text-gray-600 mt-2">
                   Available Spaces:
-                  <span className="ml-2">🚲 {space.bike_capacity} bikes</span>
-                  <span className="ml-2">🚗 {space.car_capacity} cars</span>
+                  <span className="ml-2">🛵 {space.two_wheeler_capacity} two-wheelers</span>
+                  <span className="ml-2">🚗 {space.four_wheeler_capacity} four-wheelers</span>
+                  <span className="ml-2">🚛 {space.heavy_vehicle_capacity} heavy vehicles</span>
                 </p>
               </div>
               <div className="text-right">
