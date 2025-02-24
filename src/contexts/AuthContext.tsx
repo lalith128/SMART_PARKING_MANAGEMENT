@@ -157,20 +157,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     userRole,
     signIn: async (email: string, password: string) => {
       try {
-        console.log("Starting sign in process...");
-        const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+        console.log("Starting signIn in AuthContext...");
+        const { data, error } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
 
-        console.log("Sign in response:", { signInData, signInError });
-        
-        if (signInError) {
-          console.error("Sign in error:", signInError);
-          throw signInError;
+        if (error) {
+          console.error("Supabase auth error:", error);
+          throw error;
         }
 
-        if (!signInData?.user) {
+        if (!data?.user) {
           console.error("No user data in sign in response");
           throw new Error('Sign in failed - no user data');
         }
@@ -179,20 +177,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         const { data: profile, error: profileError } = await supabase
           .from('profiles')
           .select('role')
-          .eq('id', signInData.user.id)
+          .eq('id', data.user.id)
           .single();
 
-        if (profileError && profileError.code !== 'PGRST116') {
+        if (profileError) {
           console.error("Error fetching profile:", profileError);
           throw profileError;
         }
 
-        // Set user role from profile or metadata
-        const userRole = profile?.role || signInData.user.user_metadata?.role;
-        console.log("Setting user role:", userRole);
-        setUserRole(userRole);
+        console.log("Profile fetched successfully:", profile);
+        setUserRole(profile?.role as UserRole);
 
-        return { data: signInData, error: null };
+        return { data, error: null };
       } catch (error) {
         console.error('Error in signIn:', error);
         return { data: null, error: error as Error };
