@@ -1,5 +1,4 @@
-
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { format } from "date-fns";
 import { Clock, Calendar, MapPin } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
@@ -29,6 +28,27 @@ export default function MyBookings() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const fetchBookings = useCallback(async () => {
+    try {
+      const { data, error } = await supabase
+        .from('bookings')
+        .select('*, parking_spaces(*)')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setBookings(data || []);
+    } catch (error) {
+      console.error('Error fetching bookings:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to load bookings. Please try again.",
+      });
+    } finally {
+      setLoading(false);
+    }
+  }, [toast]);
+
   useEffect(() => {
     fetchBookings();
 
@@ -51,28 +71,7 @@ export default function MyBookings() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, []);
-
-  const fetchBookings = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('bookings')
-        .select('*, parking_spaces(*)')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setBookings(data || []);
-    } catch (error) {
-      console.error('Error fetching bookings:', error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to load bookings. Please try again.",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [fetchBookings]);
 
   const handleCancel = async (bookingId: string) => {
     try {

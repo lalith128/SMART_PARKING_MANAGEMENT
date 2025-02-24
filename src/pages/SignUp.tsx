@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -6,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Car, UserPlus, Eye, EyeOff, Mail, Lock, User, Building2 } from "lucide-react";
 import type { UserRole } from "@/types/supabase";
+import { AuthError } from "@supabase/supabase-js";
 
 export default function SignUp() {
   const [formData, setFormData] = useState({
@@ -82,12 +82,13 @@ export default function SignUp() {
       console.log("Sign up successful, redirecting to check email page");
       toast.success("Please check your email to verify your account!");
       navigate('/check-email');
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error in signUp:', error);
-      if (error.message.includes('User already registered')) {
+      const authError = error as AuthError;
+      if (authError.message?.includes('User already registered')) {
         toast.error("This email is already registered. Please sign in instead.");
       } else {
-        toast.error(error.message || "Failed to sign up");
+        toast.error(authError.message || "Failed to sign up");
       }
     } finally {
       setLoading(false);

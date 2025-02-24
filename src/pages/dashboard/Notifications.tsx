@@ -1,5 +1,4 @@
-
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { format } from "date-fns";
 import {
   Info,
@@ -20,6 +19,27 @@ export default function Notifications() {
   const { toast } = useToast();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const fetchNotifications = useCallback(async () => {
+    try {
+      const { data, error } = await supabase
+        .from('notifications')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setNotifications(data || []);
+    } catch (error) {
+      console.error('Error fetching notifications:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to load notifications. Please try again.",
+      });
+    } finally {
+      setLoading(false);
+    }
+  }, [toast]);
 
   useEffect(() => {
     fetchNotifications();
@@ -43,28 +63,7 @@ export default function Notifications() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, []);
-
-  const fetchNotifications = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('notifications')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setNotifications(data || []);
-    } catch (error) {
-      console.error('Error fetching notifications:', error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to load notifications. Please try again.",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [fetchNotifications]);
 
   const markAsRead = async (id: string) => {
     try {

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Car, Search, Calendar, CreditCard, User, Bell } from "lucide-react";
@@ -23,6 +23,18 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const [unreadCount, setUnreadCount] = useState(0);
+
+  const fetchUnreadCount = useCallback(async () => {
+    if (!user?.id) return;
+    
+    const { count } = await supabase
+      .from('notifications')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+      .eq('is_read', false);
+
+    setUnreadCount(count || 0);
+  }, [user?.id]);
 
   useEffect(() => {
     if (userRole !== 'user') {
@@ -52,17 +64,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user?.id, userRole]);
-
-  const fetchUnreadCount = async () => {
-    const { count } = await supabase
-      .from('notifications')
-      .select('*', { count: 'exact', head: true })
-      .eq('user_id', user?.id)
-      .eq('is_read', false);
-
-    setUnreadCount(count || 0);
-  };
+  }, [user?.id, userRole, navigate, fetchUnreadCount]);
 
   const navItems = [
     {
