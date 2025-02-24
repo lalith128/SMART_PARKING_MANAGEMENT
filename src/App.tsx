@@ -8,6 +8,7 @@ import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import Index from "./pages/Index";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
+import ForgotPassword from "./pages/ForgotPassword";
 import VerifyEmail from "./pages/VerifyEmail";
 import CheckEmail from "./pages/CheckEmail";
 import NotFound from "./pages/NotFound";
@@ -89,6 +90,7 @@ const AppRoutes = () => {
           )
         } 
       />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/verify-email" element={<VerifyEmail />} />
       <Route path="/check-email" element={<CheckEmail />} />
       <Route path="/auth/callback" element={<VerifyEmail />} />
