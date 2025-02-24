@@ -12,33 +12,48 @@ export type Database = {
       parking_spaces: {
         Row: {
           address: string
-          bike_capacity: number
-          car_capacity: number
+          country: string
           created_at: string
+          district: string
+          four_wheeler_capacity: number
+          heavy_vehicle_capacity: number
           hourly_rate: number
           id: string
           location: Json
+          location_search: unknown | null
           owner_id: string
+          state: string
+          two_wheeler_capacity: number
         }
         Insert: {
           address: string
-          bike_capacity: number
-          car_capacity: number
+          country?: string
           created_at?: string
+          district?: string
+          four_wheeler_capacity?: number
+          heavy_vehicle_capacity?: number
           hourly_rate: number
           id?: string
           location: Json
+          location_search?: unknown | null
           owner_id: string
+          state?: string
+          two_wheeler_capacity?: number
         }
         Update: {
           address?: string
-          bike_capacity?: number
-          car_capacity?: number
+          country?: string
           created_at?: string
+          district?: string
+          four_wheeler_capacity?: number
+          heavy_vehicle_capacity?: number
           hourly_rate?: number
           id?: string
           location?: Json
+          location_search?: unknown | null
           owner_id?: string
+          state?: string
+          two_wheeler_capacity?: number
         }
         Relationships: []
       }
