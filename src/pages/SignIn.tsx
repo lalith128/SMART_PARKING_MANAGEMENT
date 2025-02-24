@@ -5,7 +5,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Car, LogIn, Eye, EyeOff, Mail, Lock } from "lucide-react";
-import { supabase } from "@/lib/supabase";
 
 export default function SignIn() {
   const [email, setEmail] = useState("");
@@ -23,34 +22,23 @@ export default function SignIn() {
 
     try {
       console.log("Attempting to sign in with email:", email);
-      const result = await signIn(email, password);
-      console.log("Sign in result:", result);
+      const { data, error } = await signIn(email, password);
+      
+      if (error) {
+        console.error("Sign in error:", error);
+        throw error;
+      }
 
-      if (!result?.data?.user) {
+      if (!data?.user) {
         console.error("No user data received");
         throw new Error("Sign in failed - no user data");
       }
 
-      // Get user role from profiles
-      console.log("Fetching user role for ID:", result.data.user.id);
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', result.data.user.id)
-        .single();
-
-      if (profileError) {
-        console.error("Error fetching profile:", profileError);
-        throw new Error("Failed to fetch user role");
-      }
-
-      console.log("User profile:", profile);
+      console.log("Sign in successful:", data.user);
       toast.success("Successfully signed in!");
-
-      // Role-based navigation
-      const targetPath = profile?.role === 'owner' ? '/dashboard/owner' : '/dashboard/user';
-      console.log("Navigating to:", targetPath);
-      navigate(targetPath);
+      
+      // Navigation will be handled by AuthContext based on user role
+      
     } catch (error) {
       console.error("Sign in error:", error);
       toast.error(error instanceof Error ? error.message : "Failed to sign in");
