@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -78,11 +79,16 @@ export default function SignUp() {
 
     try {
       await signUp(formData.email, formData.password, formData.fullName, role);
+      console.log("Sign up successful, redirecting to check email page");
       toast.success("Please check your email to verify your account!");
       navigate('/check-email');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error in signUp:', error);
-      toast.error(error instanceof Error ? error.message : "Failed to sign up");
+      if (error.message.includes('User already registered')) {
+        toast.error("This email is already registered. Please sign in instead.");
+      } else {
+        toast.error(error.message || "Failed to sign up");
+      }
     } finally {
       setLoading(false);
     }
