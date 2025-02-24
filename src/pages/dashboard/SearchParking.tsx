@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { MapPin, Clock, Car } from "lucide-react";
@@ -179,7 +178,7 @@ export default function SearchParking() {
                   </p>
                   <p className="mt-1 text-sm text-gray-600 flex items-center gap-1 justify-end">
                     <Car className="h-4 w-4" />
-                    {space.car_capacity} cars, {space.bike_capacity} bikes
+                    {space.two_wheeler_capacity} two-wheelers, {space.four_wheeler_capacity} four-wheelers
                   </p>
                 </div>
               </div>

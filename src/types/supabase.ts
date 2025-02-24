@@ -7,6 +7,9 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[]
 
+export type NotificationType = 'info' | 'warning' | 'success' | 'error';
+export type UserRole = 'user' | 'owner';
+
 export interface Database {
   public: {
     Tables: {
@@ -93,6 +96,84 @@ export interface Database {
           updated_at?: string | null
           email?: string
           phone_number?: string | null
+        }
+      }
+      notifications: {
+        Row: {
+          id: string
+          user_id: string
+          message: string
+          type: NotificationType
+          is_read: boolean
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          message: string
+          type: NotificationType
+          is_read?: boolean
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          message?: string
+          type?: NotificationType
+          is_read?: boolean
+          created_at?: string
+        }
+      }
+      bookings: {
+        Row: {
+          id: string
+          user_id: string
+          parking_space_id: string
+          start_time: string
+          end_time: string | null
+          status: 'pending' | 'active' | 'completed' | 'cancelled'
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          parking_space_id: string
+          start_time: string
+          end_time?: string | null
+          status?: 'pending' | 'active' | 'completed' | 'cancelled'
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          parking_space_id?: string
+          start_time?: string
+          end_time?: string | null
+          status?: 'pending' | 'active' | 'completed' | 'cancelled'
+          created_at?: string
+        }
+      }
+      payments: {
+        Row: {
+          id: string
+          booking_id: string
+          amount: number
+          status: 'pending' | 'completed' | 'failed'
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          booking_id: string
+          amount: number
+          status?: 'pending' | 'completed' | 'failed'
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          booking_id?: string
+          amount?: number
+          status?: 'pending' | 'completed' | 'failed'
+          created_at?: string
         }
       }
     }
