@@ -52,3 +52,28 @@ A web and mobile-based **Smart Parking Management System** that allows **parking
 ```bash
 git clone https://github.com/lalith128/SMART_PARKING_MANAGEMENT
 cd smart-parking
+
+```
+
+## 📌 Features
+
+- User and Owner dashboards
+- Real-time parking space management
+- Interactive maps with Leaflet
+- Secure authentication with Supabase
+- Responsive design with Tailwind CSS
+
+## 💻 Tech Stack
+
+- React 18
+- Vite
+- TypeScript
+- Tailwind CSS
+- Supabase
+- React Router
+- React Leaflet
+- Shadcn UI
+
+## 📄 License
+
+MIT
