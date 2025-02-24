@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -80,7 +79,7 @@ export default function SignUp() {
     try {
       await signUp(formData.email, formData.password, formData.fullName, role);
       toast.success("Please check your email to verify your account!");
-      navigate('/verify-email');
+      navigate('/check-email');
     } catch (error) {
       console.error('Error in signUp:', error);
       toast.error(error instanceof Error ? error.message : "Failed to sign up");
