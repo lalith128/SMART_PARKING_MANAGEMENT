@@ -1,5 +1,4 @@
-
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
@@ -37,13 +36,7 @@ export default function OwnerDashboard() {
   });
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    if (user) {
-      loadParkingSpaces();
-    }
-  }, [user]);
-
-  const loadParkingSpaces = async () => {
+  const loadParkingSpaces = useCallback(async () => {
     try {
       if (!user) return;
 
@@ -58,7 +51,13 @@ export default function OwnerDashboard() {
       console.error('Error loading parking spaces:', error);
       toast.error('Failed to load parking spaces');
     }
-  };
+  }, [user]);
+
+  useEffect(() => {
+    if (user) {
+      loadParkingSpaces();
+    }
+  }, [user, loadParkingSpaces]);
 
   const handleLocationSelect = async (lat: number, lng: number) => {
     setSelectedLocation([lat, lng]);

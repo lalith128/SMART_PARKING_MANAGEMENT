@@ -1,6 +1,5 @@
-
 import { createContext, useContext, useEffect, useState } from 'react';
-import { User, AuthChangeEvent, Session } from '@supabase/supabase-js';
+import { User, AuthChangeEvent, Session, AuthResponse } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 import { useNavigate } from 'react-router-dom';
 import type { UserRole } from '@/types/supabase';
@@ -9,7 +8,7 @@ interface AuthContextType {
   user: User | null;
   userRole: UserRole | null;
   signUp: (email: string, password: string, fullName: string, role: UserRole) => Promise<void>;
-  signIn: (email: string, password: string) => Promise<{ data: any; error?: Error }>;
+  signIn: (email: string, password: string) => Promise<{ data: AuthResponse['data']; error?: Error }>;
   signOut: () => Promise<void>;
   loading: boolean;
 }

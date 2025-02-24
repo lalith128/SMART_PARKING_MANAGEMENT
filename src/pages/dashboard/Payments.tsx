@@ -1,5 +1,4 @@
-
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { format } from "date-fns";
 import { CreditCard, Clock, CheckCircle, XCircle } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
@@ -44,6 +43,27 @@ export default function Payments() {
   const [selectedPayment, setSelectedPayment] = useState<Payment | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<string>("credit_card");
 
+  const fetchPayments = useCallback(async () => {
+    try {
+      const { data, error } = await supabase
+        .from('payments')
+        .select('*, bookings(*, parking_spaces(*))')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setPayments(data || []);
+    } catch (error) {
+      console.error('Error fetching payments:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to load payments. Please try again.",
+      });
+    } finally {
+      setLoading(false);
+    }
+  }, [toast]);
+
   useEffect(() => {
     fetchPayments();
 
@@ -66,28 +86,7 @@ export default function Payments() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, []);
-
-  const fetchPayments = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('payments')
-        .select('*, bookings(*, parking_spaces(*))')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setPayments(data || []);
-    } catch (error) {
-      console.error('Error fetching payments:', error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to load payments. Please try again.",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [fetchPayments]);
 
   const handlePayment = async () => {
     if (!selectedPayment) return;
