@@ -9,7 +9,7 @@ interface AuthContextType {
   user: User | null;
   userRole: UserRole | null;
   signUp: (email: string, password: string, fullName: string, role: UserRole) => Promise<void>;
-  signIn: (email: string, password: string) => Promise<{ data?: any; error?: Error }>;
+  signIn: (email: string, password: string) => Promise<{ data: any; error?: Error }>;
   signOut: () => Promise<void>;
   loading: boolean;
 }
@@ -18,7 +18,7 @@ const AuthContext = createContext<AuthContextType>({
   user: null,
   userRole: null,
   signUp: async () => {},
-  signIn: async () => ({}),
+  signIn: async () => ({ data: null }),
   signOut: async () => {},
   loading: true,
 });
@@ -63,7 +63,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setLoading(false);
     });
 
-    // Listen for changes on auth state (signed in, signed out, etc.)
+    // Listen for changes on auth state
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event: AuthChangeEvent, session: Session | null) => {
         setUser(session?.user ?? null);
@@ -113,7 +113,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       email,
       password,
     });
-    if (error) throw error;
     return { data, error };
   };
 

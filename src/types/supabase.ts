@@ -73,7 +73,7 @@ export interface Database {
         Row: {
           id: string
           full_name: string
-          role: string
+          role: UserRole
           created_at: string | null
           updated_at: string | null
           email: string
@@ -82,7 +82,7 @@ export interface Database {
         Insert: {
           id: string
           full_name: string
-          role: string
+          role: UserRole
           created_at?: string | null
           updated_at?: string | null
           email: string
@@ -91,7 +91,7 @@ export interface Database {
         Update: {
           id?: string
           full_name?: string
-          role?: string
+          role?: UserRole
           created_at?: string | null
           updated_at?: string | null
           email?: string
@@ -133,6 +133,7 @@ export interface Database {
           end_time: string | null
           status: 'pending' | 'active' | 'completed' | 'cancelled'
           created_at: string
+          parking_spaces: Database['public']['Tables']['parking_spaces']['Row']
         }
         Insert: {
           id?: string
@@ -160,6 +161,8 @@ export interface Database {
           amount: number
           status: 'pending' | 'completed' | 'failed'
           created_at: string
+          payment_method?: string
+          bookings: Database['public']['Tables']['bookings']['Row']
         }
         Insert: {
           id?: string
@@ -167,6 +170,7 @@ export interface Database {
           amount: number
           status?: 'pending' | 'completed' | 'failed'
           created_at?: string
+          payment_method?: string
         }
         Update: {
           id?: string
@@ -174,6 +178,7 @@ export interface Database {
           amount?: number
           status?: 'pending' | 'completed' | 'failed'
           created_at?: string
+          payment_method?: string
         }
       }
     }
