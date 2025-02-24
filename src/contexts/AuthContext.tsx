@@ -71,7 +71,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         const role = await getUserRole(session.user.id);
         console.log("Setting user role to:", role);
         setUserRole(role);
-        handleRoleBasedNavigation(role);
+        // Only navigate if not in auth flow
+        if (!['/signin', '/signup', '/check-email', '/verify-email', '/auth/callback'].includes(location.pathname)) {
+          handleRoleBasedNavigation(role);
+        }
       }
       setLoading(false);
     };
@@ -79,22 +82,55 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     getSession();
 
     // Listen for changes on auth state (signed in, signed out, etc.)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      console.log("Auth state changed. Event:", _event);
-      console.log("New session:", session);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log("Auth state changed. Event:", event, "Session:", session);
       
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        const role = await getUserRole(session.user.id);
-        setUserRole(role);
-        handleRoleBasedNavigation(role);
-      } else {
-        setUserRole(null);
-        if (!['/signin', '/signup'].includes(location.pathname)) {
-          navigate('/');
+      try {
+        if (event === 'SIGNED_UP') {
+          // Don't do anything on signup, let the component handle it
+          setUser(session?.user ?? null);
+          setLoading(false);
+          return;
         }
+        
+        setUser(session?.user ?? null);
+        
+        if (event === 'SIGNED_IN' && session?.user) {
+          console.log("Signed in, fetching user role...");
+          
+          // Fetch user profile
+          const { data: profile, error: profileError } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', session.user.id)
+            .single();
+
+          if (profileError && profileError.code !== 'PGRST116') {
+            console.error("Error fetching profile:", profileError);
+            throw profileError;
+          }
+
+          // Set user role from profile or metadata
+          const userRole = profile?.role || session.user.user_metadata?.role;
+          console.log("Setting user role:", userRole);
+          setUserRole(userRole);
+          
+          // Only navigate if not in auth flow
+          if (!['/signin', '/signup', '/check-email', '/verify-email', '/auth/callback'].includes(location.pathname)) {
+            handleRoleBasedNavigation(userRole);
+          }
+        } else if (!session?.user) {
+          setUserRole(null);
+          // Don't navigate away during auth flow
+          if (!['/signin', '/signup', '/check-email', '/verify-email', '/auth/callback'].includes(location.pathname)) {
+            navigate('/');
+          }
+        }
+      } catch (error) {
+        console.error("Error in auth state change:", error);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     });
 
     return () => subscription.unsubscribe();
@@ -121,20 +157,51 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     userRole,
     signIn: async (email: string, password: string) => {
       try {
-        const { data, error } = await supabase.auth.signInWithPassword({
+        console.log("Starting sign in process...");
+        const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
-        if (error) throw error;
-        return { data, error: null };
+
+        console.log("Sign in response:", { signInData, signInError });
+        
+        if (signInError) {
+          console.error("Sign in error:", signInError);
+          throw signInError;
+        }
+
+        if (!signInData?.user) {
+          console.error("No user data in sign in response");
+          throw new Error('Sign in failed - no user data');
+        }
+
+        // Fetch user profile
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', signInData.user.id)
+          .single();
+
+        if (profileError && profileError.code !== 'PGRST116') {
+          console.error("Error fetching profile:", profileError);
+          throw profileError;
+        }
+
+        // Set user role from profile or metadata
+        const userRole = profile?.role || signInData.user.user_metadata?.role;
+        console.log("Setting user role:", userRole);
+        setUserRole(userRole);
+
+        return { data: signInData, error: null };
       } catch (error) {
-        console.error('Error signing in:', error);
+        console.error('Error in signIn:', error);
         return { data: null, error: error as Error };
       }
     },
     signUp: async (email: string, password: string, fullName: string, role: UserRole) => {
       console.log("Starting sign up process in AuthContext...", { email, fullName, role });
       try {
+        // First, sign up the user
         const { error: signUpError, data } = await supabase.auth.signUp({
           email,
           password,
@@ -159,8 +226,31 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           throw new Error('User data not available after signup');
         }
 
-        // After successful sign-up, show verification message
-        navigate('/verify-email');
+        try {
+          // Create the user profile
+          const { error: profileError } = await supabase
+            .from('profiles')
+            .insert([
+              {
+                id: data.user.id,
+                full_name: fullName,
+                role: role,
+                email: email,
+              }
+            ])
+            .select()
+            .single();
+
+          if (profileError) {
+            console.error("Error creating profile:", profileError);
+            throw profileError;
+          }
+        } catch (profileError) {
+          console.error("Profile creation failed:", profileError);
+          // Continue even if profile creation fails - it will be created on first login
+        }
+
+        return;
       } catch (error) {
         console.error('Error in signUp:', error);
         throw error;
