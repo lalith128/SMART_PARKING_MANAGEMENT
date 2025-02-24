@@ -7,64 +7,9 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[]
 
-export type UserRole = 'user' | 'owner';
-export type BookingStatus = 'pending' | 'active' | 'completed' | 'cancelled';
-export type PaymentStatus = 'pending' | 'completed' | 'failed';
-export type PaymentMethod = 'credit_card' | 'wallet' | 'cash';
-export type NotificationType = 'info' | 'warning' | 'success' | 'error';
-
 export interface Database {
   public: {
     Tables: {
-      profiles: {
-        Row: {
-          id: string
-          full_name: string
-          role: UserRole
-          created_at: string
-          updated_at?: string
-        }
-        Insert: {
-          id: string
-          full_name: string
-          role: UserRole
-          created_at?: string
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          full_name?: string
-          role?: UserRole
-          created_at?: string
-          updated_at?: string
-        }
-      }
-      notifications: {
-        Row: {
-          id: string
-          user_id: string
-          message: string
-          type: NotificationType
-          is_read: boolean
-          created_at: string
-        }
-        Insert: {
-          id?: string
-          user_id: string
-          message: string
-          type: NotificationType
-          is_read?: boolean
-          created_at?: string
-        }
-        Update: {
-          id?: string
-          user_id?: string
-          message?: string
-          type?: NotificationType
-          is_read?: boolean
-          created_at?: string
-        }
-      }
       parking_spaces: {
         Row: {
           id: string
@@ -75,9 +20,14 @@ export interface Database {
             lng: number
           }
           address: string
+          district: string
+          state: string
+          country: string
           hourly_rate: number
-          bike_capacity: number
-          car_capacity: number
+          two_wheeler_capacity: number
+          four_wheeler_capacity: number
+          heavy_vehicle_capacity: number
+          location_search: unknown | null
         }
         Insert: {
           id?: string
@@ -88,9 +38,14 @@ export interface Database {
             lng: number
           }
           address: string
+          district: string
+          state: string
+          country: string
           hourly_rate: number
-          bike_capacity: number
-          car_capacity: number
+          two_wheeler_capacity: number
+          four_wheeler_capacity: number
+          heavy_vehicle_capacity: number
+          location_search?: unknown | null
         }
         Update: {
           id?: string
@@ -101,72 +56,57 @@ export interface Database {
             lng: number
           }
           address?: string
+          district?: string
+          state?: string
+          country?: string
           hourly_rate?: number
-          bike_capacity?: number
-          car_capacity?: number
+          two_wheeler_capacity?: number
+          four_wheeler_capacity?: number
+          heavy_vehicle_capacity?: number
+          location_search?: unknown | null
         }
       }
-      bookings: {
+      profiles: {
         Row: {
           id: string
-          user_id: string
-          parking_space_id: string
-          start_time: string
-          end_time?: string
-          status: BookingStatus
-          created_at: string
-          total_cost?: number
+          full_name: string
+          role: string
+          created_at: string | null
+          updated_at: string | null
+          email: string
+          phone_number: string | null
         }
         Insert: {
-          id?: string
-          user_id: string
-          parking_space_id: string
-          start_time: string
-          end_time?: string
-          status?: BookingStatus
-          created_at?: string
-          total_cost?: number
+          id: string
+          full_name: string
+          role: string
+          created_at?: string | null
+          updated_at?: string | null
+          email: string
+          phone_number?: string | null
         }
         Update: {
           id?: string
-          user_id?: string
-          parking_space_id?: string
-          start_time?: string
-          end_time?: string
-          status?: BookingStatus
-          created_at?: string
-          total_cost?: number
+          full_name?: string
+          role?: string
+          created_at?: string | null
+          updated_at?: string | null
+          email?: string
+          phone_number?: string | null
         }
       }
-      payments: {
-        Row: {
-          id: string
-          booking_id: string
-          user_id: string
-          amount: number
-          payment_method: PaymentMethod
-          status: PaymentStatus
-          created_at: string
-        }
-        Insert: {
-          id?: string
-          booking_id: string
-          user_id: string
-          amount: number
-          payment_method: PaymentMethod
-          status?: PaymentStatus
-          created_at?: string
-        }
-        Update: {
-          id?: string
-          booking_id?: string
-          user_id?: string
-          amount?: number
-          payment_method?: PaymentMethod
-          status?: PaymentStatus
-          created_at?: string
-        }
-      }
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      [_ in never]: never
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
     }
   }
 }
