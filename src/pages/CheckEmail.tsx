@@ -1,3 +1,4 @@
+
 import { Link } from "react-router-dom";
 import { Car, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -15,13 +16,13 @@ export default function CheckEmail() {
           <Mail className="w-16 h-16 text-teal-600 mx-auto mb-4" />
           <h2 className="text-2xl font-bold text-gray-900 mb-4">Check Your Email</h2>
           <p className="text-gray-600">
-            We've sent you an email with instructions to reset your password. Click the link in the email to continue.
+            We've sent you an email with instructions to verify your account. Please click the link in the email to continue.
           </p>
         </div>
 
         <div className="space-y-4">
           <p className="text-sm text-gray-500">
-            Didn't receive the email? Check your spam folder or try requesting a password reset again.
+            Didn't receive the email? Check your spam folder or try signing up again.
           </p>
           
           <div className="flex flex-col gap-3">
