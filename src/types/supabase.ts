@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type NotificationType = 'info' | 'warning' | 'success' | 'error';
-export type UserRole = 'user' | 'owner';
+export type UserRole = 'user' | 'owner' | 'admin';
 
 export interface Database {
   public: {
@@ -45,9 +45,9 @@ export interface Database {
           state: string
           country: string
           hourly_rate: number
-          two_wheeler_capacity: number
-          four_wheeler_capacity: number
-          heavy_vehicle_capacity: number
+          two_wheeler_capacity?: number
+          four_wheeler_capacity?: number
+          heavy_vehicle_capacity?: number
           location_search?: unknown | null
           images?: string[] | null
         }
@@ -74,30 +74,27 @@ export interface Database {
       profiles: {
         Row: {
           id: string
+          created_at: string
           full_name: string
+          phone_number: string
           role: UserRole
-          created_at: string | null
-          updated_at: string | null
-          email: string
-          phone_number: string | null
+          is_banned: boolean
         }
         Insert: {
           id: string
+          created_at?: string
           full_name: string
-          role: UserRole
-          created_at?: string | null
-          updated_at?: string | null
-          email: string
-          phone_number?: string | null
+          phone_number: string
+          role?: UserRole
+          is_banned?: boolean
         }
         Update: {
           id?: string
+          created_at?: string
           full_name?: string
+          phone_number?: string
           role?: UserRole
-          created_at?: string | null
-          updated_at?: string | null
-          email?: string
-          phone_number?: string | null
+          is_banned?: boolean
         }
       }
       notifications: {
