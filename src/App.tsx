@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -15,6 +14,8 @@ import NotFound from "./pages/NotFound";
 import UserDashboard from "./pages/dashboard/UserDashboard";
 import OwnerDashboard from "./pages/dashboard/OwnerDashboard";
 import ParkingSearch from "./pages/ParkingSearch";
+import AdminLogin from '@/pages/auth/AdminLogin';
+import AdminDashboard from '@/pages/dashboard/AdminDashboard';
 
 const queryClient = new QueryClient();
 
@@ -114,6 +115,10 @@ const AppRoutes = () => {
           </ProtectedRoute>
         }
       />
+
+      {/* Admin routes */}
+      <Route path="/admin/login" element={<AdminLogin />} />
+      <Route path="/dashboard/admin" element={<AdminDashboard />} />
 
       {/* Catch all */}
       <Route path="*" element={<NotFound />} />

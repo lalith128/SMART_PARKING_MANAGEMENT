@@ -87,6 +87,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             console.log('Navigating after sign in, role:', role);
             if (role === 'owner') {
               navigate('/dashboard/owner');
+            } else if (role === 'admin') {
+              navigate('/dashboard/admin');
             } else {
               navigate('/dashboard/user');
             }
@@ -127,7 +129,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       email,
       password,
     });
-    
+
     if (error) {
       console.error('Signin error:', error);
       throw error;
