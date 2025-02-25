@@ -492,8 +492,8 @@ export default function OwnerDashboard() {
             <CardContent className="pt-20 pb-8 px-8">
               {isEditingProfile ? (
                 <form onSubmit={(e) => { e.preventDefault(); handleProfileUpdate(); }} className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
                       <Input
                         value={profileData.fullName}
@@ -606,8 +606,8 @@ export default function OwnerDashboard() {
                 <div className="h-12 w-12 rounded-lg bg-blue-100 flex items-center justify-center">
                   <Car className="h-6 w-6 text-blue-600" />
                 </div>
-              </div>
-              
+          </div>
+
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
@@ -690,103 +690,103 @@ export default function OwnerDashboard() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">Street Address</label>
-                      <Input
-                        type="text"
-                        value={formData.address}
-                        onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+              <Input
+                type="text"
+                value={formData.address}
+                onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                         className="bg-gray-50 border-gray-200 focus:border-indigo-500 focus:ring-indigo-500"
                         placeholder="Street address"
-                        required
-                      />
-                    </div>
+                required
+              />
+            </div>
 
-                    <div>
+            <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">District</label>
-                      <Input
-                        type="text"
-                        value={formData.district}
-                        onChange={(e) => setFormData({ ...formData, district: e.target.value })}
+              <Input
+                type="text"
+                value={formData.district}
+                onChange={(e) => setFormData({ ...formData, district: e.target.value })}
                         className="bg-gray-50 border-gray-200 focus:border-indigo-500 focus:ring-indigo-500"
                         placeholder="District"
-                        required
-                      />
-                    </div>
+                required
+              />
+            </div>
 
-                    <div>
+            <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">State</label>
-                      <Input
-                        type="text"
-                        value={formData.state}
-                        onChange={(e) => setFormData({ ...formData, state: e.target.value })}
+              <Input
+                type="text"
+                value={formData.state}
+                onChange={(e) => setFormData({ ...formData, state: e.target.value })}
                         className="bg-gray-50 border-gray-200 focus:border-indigo-500 focus:ring-indigo-500"
                         placeholder="State"
-                        required
-                      />
-                    </div>
+                required
+              />
+            </div>
 
-                    <div>
+            <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">Country</label>
-                      <Input
-                        type="text"
-                        value={formData.country}
-                        onChange={(e) => setFormData({ ...formData, country: e.target.value })}
+              <Input
+                type="text"
+                value={formData.country}
+                onChange={(e) => setFormData({ ...formData, country: e.target.value })}
                         className="bg-gray-50 border-gray-200 focus:border-indigo-500 focus:ring-indigo-500"
                         placeholder="Country"
-                        required
-                      />
-                    </div>
+                required
+              />
+            </div>
 
-                    <div>
+            <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">Hourly Rate (₹)</label>
-                      <Input
-                        type="number"
-                        value={formData.hourly_rate}
-                        onChange={(e) => setFormData({ ...formData, hourly_rate: e.target.value })}
-                        min="0"
-                        step="0.01"
+              <Input
+                type="number"
+                value={formData.hourly_rate}
+                onChange={(e) => setFormData({ ...formData, hourly_rate: e.target.value })}
+                min="0"
+                step="0.01"
                         className="bg-gray-50 border-gray-200 focus:border-indigo-500 focus:ring-indigo-500"
                         placeholder="0.00"
-                        required
-                      />
-                    </div>
+                required
+              />
+            </div>
 
-                    <div>
+            <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">Two Wheeler Capacity</label>
-                      <Input
-                        type="number"
-                        value={formData.two_wheeler_capacity}
-                        onChange={(e) => setFormData({ ...formData, two_wheeler_capacity: e.target.value })}
+              <Input
+                type="number"
+                value={formData.two_wheeler_capacity}
+                onChange={(e) => setFormData({ ...formData, two_wheeler_capacity: e.target.value })}
                         min="0"
                         className="bg-gray-50 border-gray-200 focus:border-indigo-500 focus:ring-indigo-500"
                         placeholder="0"
-                        required
-                      />
-                    </div>
+                required
+              />
+            </div>
 
-                    <div>
+            <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">Four Wheeler Capacity</label>
-                      <Input
-                        type="number"
-                        value={formData.four_wheeler_capacity}
-                        onChange={(e) => setFormData({ ...formData, four_wheeler_capacity: e.target.value })}
+              <Input
+                type="number"
+                value={formData.four_wheeler_capacity}
+                onChange={(e) => setFormData({ ...formData, four_wheeler_capacity: e.target.value })}
                         min="0"
                         className="bg-gray-50 border-gray-200 focus:border-indigo-500 focus:ring-indigo-500"
                         placeholder="0"
-                        required
-                      />
-                    </div>
+                required
+              />
+            </div>
 
-                    <div>
+            <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">Heavy Vehicle Capacity</label>
-                      <Input
-                        type="number"
-                        value={formData.heavy_vehicle_capacity}
-                        onChange={(e) => setFormData({ ...formData, heavy_vehicle_capacity: e.target.value })}
+              <Input
+                type="number"
+                value={formData.heavy_vehicle_capacity}
+                onChange={(e) => setFormData({ ...formData, heavy_vehicle_capacity: e.target.value })}
                         min="0"
                         className="bg-gray-50 border-gray-200 focus:border-indigo-500 focus:ring-indigo-500"
                         placeholder="0"
-                        required
-                      />
+                required
+              />
                     </div>
                   </div>
 
@@ -840,7 +840,7 @@ export default function OwnerDashboard() {
                         ))}
                       </div>
                     )}
-                  </div>
+            </div>
 
                   <div className="flex justify-end gap-4 pt-4 border-t">
                     <Button
@@ -867,15 +867,15 @@ export default function OwnerDashboard() {
                     >
                       Cancel
                     </Button>
-                    <Button
-                      type="submit"
+            <Button
+              type="submit"
                       disabled={loading || uploadingImages}
                       className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white"
-                    >
+            >
                       {loading || uploadingImages ? 'Saving...' : isEditingSpace ? 'Update Parking Space' : 'Add Parking Space'}
-                    </Button>
+            </Button>
                   </div>
-                </form>
+          </form>
               </CardContent>
             </Card>
           )}
@@ -923,8 +923,8 @@ export default function OwnerDashboard() {
                     <div className="flex items-center gap-2 text-gray-500 mb-4">
                       <MapPin className="h-4 w-4" />
                       <span className="line-clamp-1">{space.district}, {space.state}, {space.country}</span>
-                    </div>
-                    
+        </div>
+
                     <div className="grid grid-cols-3 gap-2 mb-4">
                       <div className="bg-gray-50 p-2 rounded-lg text-center">
                         <div className="flex items-center justify-center mb-1">
@@ -969,9 +969,9 @@ export default function OwnerDashboard() {
                       Delete
                     </Button>
                   </CardFooter>
-                </Card>
-              ))}
-            </div>
+              </Card>
+            ))}
+          </div>
           )}
         </div>
       </div>
