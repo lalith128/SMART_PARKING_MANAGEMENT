@@ -109,7 +109,7 @@ export default function AdminDashboard(): JSX.Element {
 
       if (error) throw error;
 
-      toast.success(\`User successfully \${isBanned ? 'unbanned' : 'banned'}\`);
+      toast.success(`User successfully ${isBanned ? 'unbanned' : 'banned'}`);
       loadData();
     } catch (error) {
       console.error('Error updating user status:', error);
