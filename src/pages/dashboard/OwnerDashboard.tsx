@@ -1,11 +1,11 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { toast } from 'sonner';
-import { Plus, Building2, Car, Bike, Truck, IndianRupee } from 'lucide-react';
+import { Plus, Building2, Car, Bike, Truck, IndianRupee, ImagePlus, X } from 'lucide-react';
 import type { Database } from '@/types/supabase';
 
 type ParkingSpace = Database['public']['Tables']['parking_spaces']['Row'];
@@ -15,6 +15,10 @@ export default function OwnerDashboard() {
   const [parkingSpaces, setParkingSpaces] = useState<ParkingSpace[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAddingSpace, setIsAddingSpace] = useState(false);
+  const [uploadingImages, setUploadingImages] = useState(false);
+  const [selectedImages, setSelectedImages] = useState<File[]>([]);
+  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState({
     address: '',
     district: '',
@@ -25,6 +29,118 @@ export default function OwnerDashboard() {
     four_wheeler_capacity: '',
     heavy_vehicle_capacity: '',
   });
+
+  const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files || []);
+    if (files.length > 5) {
+      toast.error("You can only upload up to 5 images");
+      return;
+    }
+
+    setSelectedImages(files);
+    
+    // Create preview URLs
+    const urls = files.map(file => URL.createObjectURL(file));
+    setPreviewUrls(urls);
+  };
+
+  const removeImage = (index: number) => {
+    setSelectedImages(prev => prev.filter((_, i) => i !== index));
+    setPreviewUrls(prev => {
+      const newUrls = prev.filter((_, i) => i !== index);
+      return newUrls;
+    });
+  };
+
+  const uploadImages = async (parkingSpaceId: string) => {
+    const uploadedUrls: string[] = [];
+
+    for (const file of selectedImages) {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${parkingSpaceId}/${crypto.randomUUID()}.${fileExt}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('parking-images')
+        .upload(fileName, file);
+
+      if (uploadError) {
+        console.error('Error uploading image:', uploadError);
+        continue;
+      }
+
+      const { data } = supabase.storage
+        .from('parking-images')
+        .getPublicUrl(fileName);
+
+      uploadedUrls.push(data.publicUrl);
+    }
+
+    return uploadedUrls;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user) return;
+
+    setLoading(true);
+    setUploadingImages(true);
+    try {
+      const parkingSpaceData = {
+        address: formData.address,
+        district: formData.district,
+        state: formData.state,
+        country: formData.country,
+        hourly_rate: parseFloat(formData.hourly_rate),
+        two_wheeler_capacity: parseInt(formData.two_wheeler_capacity),
+        four_wheeler_capacity: parseInt(formData.four_wheeler_capacity),
+        heavy_vehicle_capacity: parseInt(formData.heavy_vehicle_capacity),
+        owner_id: user.id,
+      };
+
+      const { data: newSpace, error } = await supabase
+        .from('parking_spaces')
+        .insert([parkingSpaceData])
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      if (selectedImages.length > 0 && newSpace) {
+        const imageUrls = await uploadImages(newSpace.id);
+        
+        const { error: updateError } = await supabase
+          .from('parking_spaces')
+          .update({ images: imageUrls })
+          .eq('id', newSpace.id);
+
+        if (updateError) throw updateError;
+      }
+
+      toast.success('Parking space added successfully');
+      loadParkingSpaces();
+      
+      // Reset form and images
+      setFormData({
+        address: '',
+        district: '',
+        state: '',
+        country: '',
+        hourly_rate: '',
+        two_wheeler_capacity: '',
+        four_wheeler_capacity: '',
+        heavy_vehicle_capacity: '',
+      });
+      setSelectedImages([]);
+      setPreviewUrls([]);
+      setIsAddingSpace(false);
+    } catch (error) {
+      console.error('Error saving parking space:', error);
+      toast.error('Failed to save parking space');
+    } finally {
+      setLoading(false);
+      setUploadingImages(false);
+    }
+  };
 
   const loadParkingSpaces = useCallback(async () => {
     try {
@@ -53,53 +169,6 @@ export default function OwnerDashboard() {
       setLoading(false);
     }
   }, [user]);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!user) return;
-
-    setLoading(true);
-    try {
-      const parkingSpaceData = {
-        address: formData.address,
-        district: formData.district,
-        state: formData.state,
-        country: formData.country,
-        hourly_rate: parseFloat(formData.hourly_rate),
-        two_wheeler_capacity: parseInt(formData.two_wheeler_capacity),
-        four_wheeler_capacity: parseInt(formData.four_wheeler_capacity),
-        heavy_vehicle_capacity: parseInt(formData.heavy_vehicle_capacity),
-        owner_id: user.id,
-      };
-
-      const { error } = await supabase
-        .from('parking_spaces')
-        .insert([parkingSpaceData]);
-
-      if (error) throw error;
-
-      toast.success('Parking space added successfully');
-      loadParkingSpaces();
-      
-      // Reset form and close add space form
-      setFormData({
-        address: '',
-        district: '',
-        state: '',
-        country: '',
-        hourly_rate: '',
-        two_wheeler_capacity: '',
-        four_wheeler_capacity: '',
-        heavy_vehicle_capacity: '',
-      });
-      setIsAddingSpace(false);
-    } catch (error) {
-      console.error('Error saving parking space:', error);
-      toast.error('Failed to save parking space');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   if (!user || userRole !== 'owner') {
     return (
@@ -297,19 +366,69 @@ export default function OwnerDashboard() {
                   </div>
                 </div>
 
+                <div className="space-y-4">
+                  <label className="block text-sm font-medium mb-2">
+                    Parking Space Images (Max 5)
+                  </label>
+                  <div className="flex items-center gap-4">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="flex items-center gap-2"
+                    >
+                      <ImagePlus className="h-4 w-4" />
+                      Select Images
+                    </Button>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      className="hidden"
+                      onChange={handleImageSelect}
+                    />
+                  </div>
+
+                  {previewUrls.length > 0 && (
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4">
+                      {previewUrls.map((url, index) => (
+                        <div key={url} className="relative group">
+                          <img
+                            src={url}
+                            alt={`Preview ${index + 1}`}
+                            className="w-full h-40 object-cover rounded-lg"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => removeImage(index)}
+                            className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <X className="h-4 w-4" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
                 <div className="flex justify-end gap-4">
                   <Button
                     type="button"
                     variant="outline"
-                    onClick={() => setIsAddingSpace(false)}
+                    onClick={() => {
+                      setIsAddingSpace(false);
+                      setSelectedImages([]);
+                      setPreviewUrls([]);
+                    }}
                   >
                     Cancel
                   </Button>
                   <Button
                     type="submit"
-                    disabled={loading}
+                    disabled={loading || uploadingImages}
                   >
-                    {loading ? 'Saving...' : 'Add Parking Space'}
+                    {loading || uploadingImages ? 'Saving...' : 'Add Parking Space'}
                   </Button>
                 </div>
               </form>
