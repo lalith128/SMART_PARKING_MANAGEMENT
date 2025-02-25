@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { toast } from 'sonner';
-import { Plus, Building2, Car, Bike, Truck, IndianRupee, ImagePlus, X } from 'lucide-react';
+import { Plus, Building2, Car, Bike, Truck, IndianRupee, ImagePlus, X, ImageIcon } from 'lucide-react';
 import type { Database } from '@/types/supabase';
 
 type ParkingSpace = Database['public']['Tables']['parking_spaces']['Row'];
@@ -53,12 +53,16 @@ export default function OwnerDashboard() {
     setPreviewUrls(prev => prev.filter((_, i) => i !== index));
   };
 
+  const generateUniqueId = () => {
+    return Date.now().toString(36) + Math.random().toString(36).substring(2);
+  };
+
   const uploadImages = async (parkingSpaceId: string) => {
     const uploadedUrls: string[] = [];
 
     for (const file of selectedImages) {
       const fileExt = file.name.split('.').pop();
-      const fileName = `${parkingSpaceId}/${crypto.randomUUID()}.${fileExt}`;
+      const fileName = `${parkingSpaceId}/${generateUniqueId()}.${fileExt}`;
 
       const { error: uploadError } = await supabase.storage
         .from('parking-images')
@@ -121,7 +125,7 @@ export default function OwnerDashboard() {
       if (error) {
         throw error;
       }
-
+      
       if (!newSpace) {
         throw new Error('Failed to create parking space');
       }
