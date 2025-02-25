@@ -1,4 +1,3 @@
-
 export type Json =
   | string
   | number
@@ -31,6 +30,7 @@ export interface Database {
           four_wheeler_capacity: number
           heavy_vehicle_capacity: number
           location_search: unknown | null
+          images: string[] | null
         }
         Insert: {
           id?: string
@@ -49,6 +49,7 @@ export interface Database {
           four_wheeler_capacity: number
           heavy_vehicle_capacity: number
           location_search?: unknown | null
+          images?: string[] | null
         }
         Update: {
           id?: string
@@ -67,6 +68,7 @@ export interface Database {
           four_wheeler_capacity?: number
           heavy_vehicle_capacity?: number
           location_search?: unknown | null
+          images?: string[] | null
         }
       }
       profiles: {
