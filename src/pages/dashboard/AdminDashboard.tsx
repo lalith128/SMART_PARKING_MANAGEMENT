@@ -49,7 +49,7 @@ interface ParkingSpace {
   created_at: string;
 }
 
-export default function AdminDashboard() {
+export default function AdminDashboard(): JSX.Element {
   const { user } = useAuth();
   const [users, setUsers] = useState<User[]>([]);
   const [parkingSpaces, setParkingSpaces] = useState<ParkingSpace[]>([]);
