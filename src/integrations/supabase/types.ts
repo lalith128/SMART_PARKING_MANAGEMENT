@@ -19,6 +19,7 @@ export type Database = {
           heavy_vehicle_capacity: number
           hourly_rate: number
           id: string
+          images: string[] | null
           location: Json
           location_search: unknown | null
           owner_id: string
@@ -34,6 +35,7 @@ export type Database = {
           heavy_vehicle_capacity?: number
           hourly_rate: number
           id?: string
+          images?: string[] | null
           location: Json
           location_search?: unknown | null
           owner_id: string
@@ -49,6 +51,7 @@ export type Database = {
           heavy_vehicle_capacity?: number
           hourly_rate?: number
           id?: string
+          images?: string[] | null
           location?: Json
           location_search?: unknown | null
           owner_id?: string
