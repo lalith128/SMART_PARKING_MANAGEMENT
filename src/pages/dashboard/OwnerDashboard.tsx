@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -30,6 +30,12 @@ export default function OwnerDashboard() {
     heavy_vehicle_capacity: '',
   });
 
+  useEffect(() => {
+    if (user) {
+      loadParkingSpaces();
+    }
+  }, [user]);
+
   const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
     if (files.length > 5) {
@@ -38,18 +44,13 @@ export default function OwnerDashboard() {
     }
 
     setSelectedImages(files);
-    
-    // Create preview URLs
     const urls = files.map(file => URL.createObjectURL(file));
     setPreviewUrls(urls);
   };
 
   const removeImage = (index: number) => {
     setSelectedImages(prev => prev.filter((_, i) => i !== index));
-    setPreviewUrls(prev => {
-      const newUrls = prev.filter((_, i) => i !== index);
-      return newUrls;
-    });
+    setPreviewUrls(prev => prev.filter((_, i) => i !== index));
   };
 
   const uploadImages = async (parkingSpaceId: string) => {
@@ -80,21 +81,35 @@ export default function OwnerDashboard() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) return;
+    if (!user) {
+      toast.error("You must be logged in to add a parking space");
+      return;
+    }
+
+    if (!formData.address || !formData.district || !formData.state || !formData.country) {
+      toast.error("Please fill in all location fields");
+      return;
+    }
+
+    if (!formData.hourly_rate || parseFloat(formData.hourly_rate) <= 0) {
+      toast.error("Please enter a valid hourly rate");
+      return;
+    }
 
     setLoading(true);
     setUploadingImages(true);
     try {
       const parkingSpaceData = {
+        owner_id: user.id,
         address: formData.address,
         district: formData.district,
         state: formData.state,
         country: formData.country,
         hourly_rate: parseFloat(formData.hourly_rate),
-        two_wheeler_capacity: parseInt(formData.two_wheeler_capacity),
-        four_wheeler_capacity: parseInt(formData.four_wheeler_capacity),
-        heavy_vehicle_capacity: parseInt(formData.heavy_vehicle_capacity),
-        owner_id: user.id,
+        two_wheeler_capacity: parseInt(formData.two_wheeler_capacity) || 0,
+        four_wheeler_capacity: parseInt(formData.four_wheeler_capacity) || 0,
+        heavy_vehicle_capacity: parseInt(formData.heavy_vehicle_capacity) || 0,
+        location: { lat: 0, lng: 0 },
       };
 
       const { data: newSpace, error } = await supabase
@@ -103,9 +118,15 @@ export default function OwnerDashboard() {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        throw error;
+      }
 
-      if (selectedImages.length > 0 && newSpace) {
+      if (!newSpace) {
+        throw new Error('Failed to create parking space');
+      }
+
+      if (selectedImages.length > 0) {
         const imageUrls = await uploadImages(newSpace.id);
         
         const { error: updateError } = await supabase
@@ -113,13 +134,13 @@ export default function OwnerDashboard() {
           .update({ images: imageUrls })
           .eq('id', newSpace.id);
 
-        if (updateError) throw updateError;
+        if (updateError) {
+          throw updateError;
+        }
       }
 
       toast.success('Parking space added successfully');
-      loadParkingSpaces();
       
-      // Reset form and images
       setFormData({
         address: '',
         district: '',
@@ -133,6 +154,8 @@ export default function OwnerDashboard() {
       setSelectedImages([]);
       setPreviewUrls([]);
       setIsAddingSpace(false);
+      
+      await loadParkingSpaces();
     } catch (error) {
       console.error('Error saving parking space:', error);
       toast.error('Failed to save parking space');
@@ -143,12 +166,12 @@ export default function OwnerDashboard() {
   };
 
   const loadParkingSpaces = useCallback(async () => {
-    try {
-      if (!user) {
-        console.log('No user found, skipping loadParkingSpaces');
-        return;
-      }
+    if (!user) {
+      console.log('No user found, skipping loadParkingSpaces');
+      return;
+    }
 
+    try {
       console.log('Fetching parking spaces for user:', user.id);
       const { data, error } = await supabase
         .from('parking_spaces')
@@ -156,7 +179,6 @@ export default function OwnerDashboard() {
         .eq('owner_id', user.id);
 
       if (error) {
-        console.error('Error loading parking spaces:', error);
         throw error;
       }
       
@@ -341,6 +363,7 @@ export default function OwnerDashboard() {
                       type="number"
                       value={formData.two_wheeler_capacity}
                       onChange={(e) => setFormData({ ...formData, two_wheeler_capacity: e.target.value })}
+                      min="0"
                       required
                     />
                   </div>
@@ -351,6 +374,7 @@ export default function OwnerDashboard() {
                       type="number"
                       value={formData.four_wheeler_capacity}
                       onChange={(e) => setFormData({ ...formData, four_wheeler_capacity: e.target.value })}
+                      min="0"
                       required
                     />
                   </div>
@@ -361,6 +385,7 @@ export default function OwnerDashboard() {
                       type="number"
                       value={formData.heavy_vehicle_capacity}
                       onChange={(e) => setFormData({ ...formData, heavy_vehicle_capacity: e.target.value })}
+                      min="0"
                       required
                     />
                   </div>
@@ -451,6 +476,19 @@ export default function OwnerDashboard() {
           ) : (
             parkingSpaces.map((space) => (
               <Card key={space.id} className="overflow-hidden">
+                <div className="relative h-48">
+                  {space.images && space.images.length > 0 ? (
+                    <img
+                      src={space.images[0]}
+                      alt={`Parking at ${space.address}`}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+                      <ImagePlus className="h-12 w-12 text-gray-400" />
+                    </div>
+                  )}
+                </div>
                 <CardHeader className="border-b bg-gray-50">
                   <CardTitle>{space.address}</CardTitle>
                   <CardDescription>{space.district}, {space.state}, {space.country}</CardDescription>
