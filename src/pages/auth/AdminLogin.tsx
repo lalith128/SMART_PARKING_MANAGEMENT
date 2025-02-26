@@ -21,42 +21,55 @@ export default function AdminLogin() {
     try {
       // First check if username matches
       if (username !== 'admin') {
-        throw new Error('Invalid username');
-      }
-
-      // Then check if password matches
-      if (password !== 'admin123') {
-        throw new Error('Invalid password');
+        toast.error('Invalid username');
+        return;
       }
 
       // Sign in with Supabase using admin credentials
       const { data, error } = await supabase.auth.signInWithPassword({
         email: 'admin@parkease.com',
-        password: password
+        password: 'admin123' // Using the fixed admin password
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase auth error:', error);
+        toast.error('Authentication failed');
+        return;
+      }
 
       if (data.user) {
-        // Set admin role in profile
-        const { error: profileError } = await supabase
+        // Check if profile exists first
+        const { data: profileData } = await supabase
           .from('profiles')
-          .upsert({
-            id: data.user.id,
-            full_name: 'Admin',
-            role: 'admin',
-            phone_number: '',
-            is_banned: false
-          });
+          .select('*')
+          .eq('id', data.user.id)
+          .single();
 
-        if (profileError) throw profileError;
+        // Only upsert if profile doesn't exist or role isn't admin
+        if (!profileData || profileData.role !== 'admin') {
+          const { error: profileError } = await supabase
+            .from('profiles')
+            .upsert({
+              id: data.user.id,
+              full_name: 'Admin',
+              role: 'admin',
+              phone_number: '',
+              email: data.user.email
+            });
+
+          if (profileError) {
+            console.error('Profile update error:', profileError);
+            toast.error('Failed to update admin profile');
+            return;
+          }
+        }
 
         toast.success('Successfully logged in as admin');
         navigate('/dashboard/admin');
       }
     } catch (error) {
       console.error('Login error:', error);
-      toast.error('Invalid admin credentials');
+      toast.error('Login failed. Please try again.');
     } finally {
       setLoading(false);
     }
