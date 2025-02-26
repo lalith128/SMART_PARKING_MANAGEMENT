@@ -1,3 +1,4 @@
+
 import { createContext, useContext, useEffect, useState } from 'react';
 import { User, AuthChangeEvent, Session, AuthResponse } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
@@ -11,6 +12,7 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<{ data: AuthResponse['data']; error?: Error }>;
   signOut: () => Promise<void>;
   loading: boolean;
+  createAdminUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -20,6 +22,7 @@ const AuthContext = createContext<AuthContextType>({
   signIn: async () => ({ data: null }),
   signOut: async () => {},
   loading: true,
+  createAdminUser: async () => {},
 });
 
 export const useAuth = () => {
@@ -51,6 +54,26 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     console.log('User role fetched:', data?.role);
     return data?.role as UserRole | null;
+  };
+
+  const createAdminUser = async () => {
+    const { data, error } = await supabase.auth.signUp({
+      email: 'admin@parkease.com',
+      password: 'admin123',
+      options: {
+        data: {
+          full_name: 'Admin',
+          role: 'admin',
+        },
+      },
+    });
+
+    if (error) {
+      console.error('Error creating admin user:', error);
+      throw error;
+    }
+
+    console.log('Admin user created:', data);
   };
 
   useEffect(() => {
@@ -145,7 +168,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, userRole, signUp, signIn, signOut, loading }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      userRole, 
+      signUp, 
+      signIn, 
+      signOut, 
+      loading,
+      createAdminUser 
+    }}>
       {children}
     </AuthContext.Provider>
   );

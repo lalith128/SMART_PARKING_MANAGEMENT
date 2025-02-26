@@ -14,7 +14,7 @@ export default function AdminLogin() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const { signIn } = useAuth();
+  const { signIn, createAdminUser } = useAuth();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,6 +29,15 @@ export default function AdminLogin() {
         toast.error('Invalid admin credentials');
         setLoading(false);
         return;
+      }
+
+      // Try to create admin user first (will fail if already exists)
+      try {
+        await createAdminUser();
+        console.log('Admin user created successfully');
+      } catch (error) {
+        console.log('Admin user might already exist:', error);
+        // Ignore error as user might already exist
       }
 
       // Using signIn from AuthContext for consistency
