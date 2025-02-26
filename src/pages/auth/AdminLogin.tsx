@@ -7,40 +7,46 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { toast } from 'sonner';
 import { Lock, User, Shield } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function AdminLogin() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { signIn } = useAuth();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
+    console.log('Attempting admin login with:', { username, password });
+
     try {
-      // First check if username and password match admin credentials
+      // Validate admin credentials
       if (username !== 'admin' || password !== 'admin123') {
-        toast.error('Invalid credentials');
+        console.log('Invalid admin credentials');
+        toast.error('Invalid admin credentials');
         setLoading(false);
         return;
       }
 
-      // Sign in with Supabase using email
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: 'admin@parkease.com',
-        password: 'admin123'
-      });
+      // Using signIn from AuthContext for consistency
+      console.log('Attempting Supabase auth...');
+      const { data, error } = await signIn('admin@parkease.com', 'admin123');
 
       if (error) {
-        console.error('Auth error:', error);
-        toast.error('Authentication failed. Please try again.');
+        console.error('Supabase auth error:', error);
+        toast.error('Authentication failed');
         setLoading(false);
         return;
       }
 
-      if (data.user) {
-        const { data: profileData, error: profileError } = await supabase
+      console.log('Auth successful:', data);
+
+      if (data?.user) {
+        console.log('Updating admin profile...');
+        const { error: profileError } = await supabase
           .from('profiles')
           .upsert({
             id: data.user.id,
@@ -48,17 +54,16 @@ export default function AdminLogin() {
             role: 'admin',
             phone_number: '',
             email: data.user.email
-          })
-          .select()
-          .single();
+          });
 
         if (profileError) {
-          console.error('Profile error:', profileError);
+          console.error('Profile update error:', profileError);
           toast.error('Failed to update admin profile');
           setLoading(false);
           return;
         }
 
+        console.log('Admin profile updated successfully');
         toast.success('Successfully logged in as admin');
         navigate('/dashboard/admin');
       }
