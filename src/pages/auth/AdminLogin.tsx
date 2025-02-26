@@ -19,49 +19,44 @@ export default function AdminLogin() {
     setLoading(true);
 
     try {
-      // First check if username matches
-      if (username !== 'admin') {
-        toast.error('Invalid username');
+      // First check if username and password match admin credentials
+      if (username !== 'admin' || password !== 'admin123') {
+        toast.error('Invalid credentials');
+        setLoading(false);
         return;
       }
 
-      // Sign in with Supabase using admin credentials
+      // Sign in with Supabase using email
       const { data, error } = await supabase.auth.signInWithPassword({
         email: 'admin@parkease.com',
-        password: 'admin123' // Using the fixed admin password
+        password: 'admin123'
       });
 
       if (error) {
-        console.error('Supabase auth error:', error);
-        toast.error('Authentication failed');
+        console.error('Auth error:', error);
+        toast.error('Authentication failed. Please try again.');
+        setLoading(false);
         return;
       }
 
       if (data.user) {
-        // Check if profile exists first
-        const { data: profileData } = await supabase
+        const { data: profileData, error: profileError } = await supabase
           .from('profiles')
-          .select('*')
-          .eq('id', data.user.id)
+          .upsert({
+            id: data.user.id,
+            full_name: 'Admin',
+            role: 'admin',
+            phone_number: '',
+            email: data.user.email
+          })
+          .select()
           .single();
 
-        // Only upsert if profile doesn't exist or role isn't admin
-        if (!profileData || profileData.role !== 'admin') {
-          const { error: profileError } = await supabase
-            .from('profiles')
-            .upsert({
-              id: data.user.id,
-              full_name: 'Admin',
-              role: 'admin',
-              phone_number: '',
-              email: data.user.email
-            });
-
-          if (profileError) {
-            console.error('Profile update error:', profileError);
-            toast.error('Failed to update admin profile');
-            return;
-          }
+        if (profileError) {
+          console.error('Profile error:', profileError);
+          toast.error('Failed to update admin profile');
+          setLoading(false);
+          return;
         }
 
         toast.success('Successfully logged in as admin');
