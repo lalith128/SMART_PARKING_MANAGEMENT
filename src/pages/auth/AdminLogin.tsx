@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -18,15 +19,20 @@ export default function AdminLogin() {
     setLoading(true);
 
     try {
-      // Check if credentials match the admin user
-      if (username !== 'Nalesh') {
-        throw new Error('Invalid credentials');
+      // First check if username matches
+      if (username !== 'admin') {
+        throw new Error('Invalid username');
       }
 
-      // Sign in with Supabase using admin email
+      // Then check if password matches
+      if (password !== 'admin123') {
+        throw new Error('Invalid password');
+      }
+
+      // Sign in with Supabase using admin credentials
       const { data, error } = await supabase.auth.signInWithPassword({
         email: 'admin@parkease.com',
-        password: '12345678q@'
+        password: password
       });
 
       if (error) throw error;
@@ -37,8 +43,8 @@ export default function AdminLogin() {
           .from('profiles')
           .upsert({
             id: data.user.id,
-            role: 'admin',
             full_name: 'Admin',
+            role: 'admin',
             phone_number: '',
             is_banned: false
           });
@@ -108,4 +114,4 @@ export default function AdminLogin() {
       </Card>
     </div>
   );
-} 
+}
