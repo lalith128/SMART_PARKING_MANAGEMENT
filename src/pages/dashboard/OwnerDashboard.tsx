@@ -5,13 +5,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { toast } from 'sonner';
-import { Plus, Building2, Car, Bike, Truck, IndianRupee, ImagePlus, X, ImageIcon, Edit, MapPin, Phone, Mail, User, ArrowRight } from 'lucide-react';
+import { Plus, Building2, Car, Bike, Truck, IndianRupee, ImagePlus, X, ImageIcon, Edit, MapPin, Phone, Mail, User, ArrowRight, LogOut } from 'lucide-react';
 import type { Database } from '@/types/supabase';
 
 type ParkingSpace = Database['public']['Tables']['parking_spaces']['Row'];
 
 export default function OwnerDashboard() {
-  const { user, userRole } = useAuth();
+  const { user, userRole, signOut } = useAuth();
   const [parkingSpaces, setParkingSpaces] = useState<ParkingSpace[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAddingSpace, setIsAddingSpace] = useState(false);
@@ -144,6 +144,7 @@ export default function OwnerDashboard() {
         .getPublicUrl(fileName);
 
       uploadedUrls.push(data.publicUrl);
+      
     }
 
     return uploadedUrls;
@@ -469,13 +470,25 @@ export default function OwnerDashboard() {
     <div className="min-h-screen bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Dashboard Header */}
-        <div className="mb-12 text-center">
-          <h1 className="text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 mb-4">
-            Owner Dashboard
-          </h1>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Manage your parking spaces and monitor their performance in real-time
-          </p>
+        <div className="mb-12">
+          <div className="flex justify-between items-center mb-6">
+            <div className="text-center flex-1">
+              <h1 className="text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 mb-4">
+                Owner Dashboard
+              </h1>
+              <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+                Manage your parking spaces and monitor their performance in real-time
+              </p>
+            </div>
+            <Button
+              onClick={signOut}
+              variant="outline"
+              className="flex items-center gap-2 border-red-200 text-red-600 hover:bg-red-50"
+            >
+              <LogOut className="h-4 w-4" />
+              Sign Out
+            </Button>
+          </div>
         </div>
 
         {/* Profile Section */}
