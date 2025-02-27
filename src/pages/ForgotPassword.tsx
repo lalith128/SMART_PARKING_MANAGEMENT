@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
@@ -6,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Mail, ArrowLeft } from "lucide-react";
 import { Car } from "lucide-react";
+import { Input } from "@/components/ui/input";
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState("");
@@ -49,6 +49,10 @@ export default function ForgotPassword() {
             <p className="mt-2 text-gray-600">
               We've sent a password reset link to your email address.
             </p>
+            <p className="mt-4 text-sm text-gray-500">
+              If you don't see the email in your inbox, please check your spam folder.
+              The link will expire after 24 hours.
+            </p>
           </div>
           <Link
             to="/signin"
@@ -82,12 +86,12 @@ export default function ForgotPassword() {
             </label>
             <div className="relative">
               <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-              <input
+              <Input
                 id="email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all"
+                className="pl-10"
                 placeholder="Enter your email"
                 required
               />
