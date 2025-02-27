@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type NotificationType = 'info' | 'warning' | 'success' | 'error';
-export type UserRole = 'user' | 'owner' | 'admin';
+export type UserRole = 'user' | 'owner';
 
 export interface Database {
   public: {
