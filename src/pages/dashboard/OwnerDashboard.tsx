@@ -483,10 +483,10 @@ export default function OwnerDashboard() {
             <Button
               onClick={signOut}
               variant="outline"
-              className="flex items-center gap-2 border-red-200 text-red-600 hover:bg-red-50"
+              className="flex items-center gap-2 bg-white hover:bg-red-50 text-gray-700 hover:text-red-600 border border-gray-200 hover:border-red-200 shadow-sm transition-all duration-200 px-4 py-2 rounded-lg"
             >
               <LogOut className="h-4 w-4" />
-              Sign Out
+              <span className="font-medium">Sign Out</span>
             </Button>
           </div>
         </div>

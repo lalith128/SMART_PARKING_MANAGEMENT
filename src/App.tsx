@@ -13,6 +13,8 @@ import CheckEmail from "./pages/CheckEmail";
 import NotFound from "./pages/NotFound";
 import UserDashboard from "./pages/dashboard/UserDashboard";
 import OwnerDashboard from "./pages/dashboard/OwnerDashboard";
+import ResetPassword from "./pages/ResetPassword";
+import ParkingSearch from "./pages/dashboard/SearchParking";
 
 const queryClient = new QueryClient();
 
@@ -36,7 +38,8 @@ const ProtectedRoute = ({
   }
 
   if (!user && location.pathname !== '/signin' && location.pathname !== '/signup' && 
-      location.pathname !== '/verify-email' && location.pathname !== '/check-email') {
+      location.pathname !== '/verify-email' && location.pathname !== '/check-email' &&
+      location.pathname !== '/reset-password') {
     return <Navigate to="/signin" state={{ from: location }} replace />;
   }
 
@@ -63,6 +66,7 @@ const AppRoutes = () => {
     <Routes>
       {/* Public routes */}
       <Route path="/" element={<Index />} />
+      <Route path="/search" element={<ParkingSearch />} />
       <Route 
         path="/signin" 
         element={
@@ -87,6 +91,7 @@ const AppRoutes = () => {
       <Route path="/verify-email" element={<VerifyEmail />} />
       <Route path="/check-email" element={<CheckEmail />} />
       <Route path="/auth/callback" element={<VerifyEmail />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
 
       {/* Protected user routes */}
       <Route
