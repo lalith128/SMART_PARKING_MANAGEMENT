@@ -13,9 +13,6 @@ import CheckEmail from "./pages/CheckEmail";
 import NotFound from "./pages/NotFound";
 import UserDashboard from "./pages/dashboard/UserDashboard";
 import OwnerDashboard from "./pages/dashboard/OwnerDashboard";
-import ParkingSearch from "./pages/ParkingSearch";
-import AdminLogin from '@/pages/auth/AdminLogin';
-import AdminDashboard from '@/pages/dashboard/AdminDashboard';
 
 const queryClient = new QueryClient();
 
@@ -29,8 +26,6 @@ const ProtectedRoute = ({
 }) => {
   const { user, userRole, loading } = useAuth();
   const location = useLocation();
-
-  console.log('ProtectedRoute:', { user, userRole, loading, requiredRole });
 
   if (loading) {
     return (
@@ -56,8 +51,6 @@ const AppRoutes = () => {
   const { user, loading } = useAuth();
   const location = useLocation();
 
-  console.log('AppRoutes:', { user, loading, pathname: location.pathname });
-
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -70,7 +63,6 @@ const AppRoutes = () => {
     <Routes>
       {/* Public routes */}
       <Route path="/" element={<Index />} />
-      <Route path="/search" element={<ParkingSearch />} />
       <Route 
         path="/signin" 
         element={
@@ -115,10 +107,6 @@ const AppRoutes = () => {
           </ProtectedRoute>
         }
       />
-
-      {/* Admin routes */}
-      <Route path="/admin/login" element={<AdminLogin />} />
-      <Route path="/dashboard/admin" element={<AdminDashboard />} />
 
       {/* Catch all */}
       <Route path="*" element={<NotFound />} />
