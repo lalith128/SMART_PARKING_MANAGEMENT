@@ -17,8 +17,12 @@ export default function ForgotPassword() {
     setLoading(true);
 
     try {
+      // Explicitly construct the reset URL with the current origin
+      const resetPasswordURL = `${window.location.origin}/reset-password`;
+      console.log('Reset password URL:', resetPasswordURL);
+
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`,
+        redirectTo: resetPasswordURL
       });
 
       if (error) {
