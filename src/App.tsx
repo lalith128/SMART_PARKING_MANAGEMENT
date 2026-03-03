@@ -120,7 +120,7 @@ const AppRoutes = () => {
 };
 
 const App = () => (
-  <BrowserRouter>
+  <BrowserRouter basename={import.meta.env.BASE_URL}>
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <TooltipProvider>
