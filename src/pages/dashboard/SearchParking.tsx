@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 import { 
   Search, MapPin, Bike, Car, Truck, IndianRupee, ArrowRight, 
   Calendar, Clock, CreditCard, Wallet, QrCode, X, CheckCircle2
@@ -40,8 +41,16 @@ export default function SearchParking() {
   const [selectedVehicleType, setSelectedVehicleType] = useState<VehicleType>("four_wheeler");
   const [bookingHours, setBookingHours] = useState(1);
   const [paymentMethod, setPaymentMethod] = useState("upi");
+  const [bookingStartAt, setBookingStartAt] = useState(() => {
+    const now = new Date();
+    now.setMinutes(Math.ceil(now.getMinutes() / 15) * 15);
+    return now.toISOString().slice(0, 16);
+  });
+  const [vehicleNumber, setVehicleNumber] = useState("");
+  const [bookingProcessing, setBookingProcessing] = useState(false);
   const [bookingSuccess, setBookingSuccess] = useState(false);
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const handleSearch = async () => {
     if (!searchQuery.trim() && !maxPrice && !Object.values(vehicleFilters).some(v => v)) {
@@ -120,23 +129,116 @@ export default function SearchParking() {
     
     setBookingModalOpen(true);
     setBookingSuccess(false);
+    setVehicleNumber("");
+    const now = new Date();
+    now.setMinutes(Math.ceil(now.getMinutes() / 15) * 15);
+    setBookingStartAt(now.toISOString().slice(0, 16));
   };
 
-  const handleConfirmBooking = () => {
-    // In a real app, you would save the booking to the database here
-    setBookingSuccess(true);
-    
-    // Show success toast
-    toast({
-      title: "Booking Successful",
-      description: `Your parking space has been booked for ${bookingHours} hour${bookingHours > 1 ? 's' : ''}`,
-    });
-    
-    // Close modal after 3 seconds
-    setTimeout(() => {
-      setBookingModalOpen(false);
-      setBookingSuccess(false);
-    }, 3000);
+  const mapVehicleTypeToDb = (type: VehicleType) => {
+    switch (type) {
+      case "two_wheeler":
+        return "two-wheeler";
+      case "four_wheeler":
+        return "four-wheeler";
+      case "heavy_vehicle":
+        return "heavy-vehicle";
+    }
+  };
+
+  const mapPaymentMethodToDb = (method: string) => {
+    if (method === "upi") return "online";
+    if (method === "wallet") return "wallet";
+    if (method === "card") return "card";
+    return "cash";
+  };
+
+  const handleConfirmBooking = async () => {
+    if (!user || !selectedSpace) {
+      toast({
+        title: "Sign in required",
+        description: "Please sign in before booking.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!vehicleNumber.trim()) {
+      toast({
+        title: "Vehicle number required",
+        description: "Please enter your vehicle number.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const startTime = new Date(bookingStartAt);
+    const endTime = new Date(startTime.getTime() + bookingHours * 60 * 60 * 1000);
+
+    if (Number.isNaN(startTime.getTime()) || startTime <= new Date()) {
+      toast({
+        title: "Invalid start time",
+        description: "Select a future start time.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setBookingProcessing(true);
+    try {
+      const dbVehicleType = mapVehicleTypeToDb(selectedVehicleType);
+
+      const { data: isAvailable, error: availabilityError } = await supabase.rpc("check_time_slot_availability", {
+        p_parking_space_id: selectedSpace.id,
+        p_vehicle_type: dbVehicleType,
+        p_start_time: startTime.toISOString(),
+        p_end_time: endTime.toISOString(),
+      });
+
+      if (availabilityError) throw availabilityError;
+      if (!isAvailable) throw new Error("Selected time slot is not available");
+
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("full_name")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      const { error: bookingError } = await supabase.rpc("create_parking_booking", {
+        p_user_id: user.id,
+        p_parking_space_id: selectedSpace.id,
+        p_slot_number: "",
+        p_vehicle_type: dbVehicleType,
+        p_vehicle_number: vehicleNumber.trim().toUpperCase(),
+        p_start_time: startTime.toISOString(),
+        p_end_time: endTime.toISOString(),
+        p_amount: calculateTotalPrice(),
+        p_user_name: profile?.full_name || user.email || "User",
+        p_user_email: user.email || "",
+        p_payment_method: mapPaymentMethodToDb(paymentMethod),
+      });
+
+      if (bookingError) throw bookingError;
+
+      setBookingSuccess(true);
+      toast({
+        title: "Booking Successful",
+        description: `Your parking space has been booked for ${bookingHours} hour${bookingHours > 1 ? "s" : ""}`,
+      });
+
+      setTimeout(() => {
+        setBookingModalOpen(false);
+        setBookingSuccess(false);
+      }, 2500);
+    } catch (error) {
+      toast({
+        title: "Booking failed",
+        description: error instanceof Error ? error.message : "Unable to create booking",
+        variant: "destructive",
+      });
+    } finally {
+      setBookingProcessing(false);
+    }
   };
 
   const calculateTotalPrice = () => {
@@ -474,6 +576,33 @@ export default function SearchParking() {
                     </Button>
                   </div>
                 </div>
+
+                <div className="mb-6 grid grid-cols-1 gap-4">
+                  <div>
+                    <Label htmlFor="booking_start" className="text-sm font-medium text-gray-700 mb-2 block">
+                      Start Time
+                    </Label>
+                    <Input
+                      id="booking_start"
+                      type="datetime-local"
+                      value={bookingStartAt}
+                      onChange={(e) => setBookingStartAt(e.target.value)}
+                      className="rounded-lg border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="vehicle_number" className="text-sm font-medium text-gray-700 mb-2 block">
+                      Vehicle Number
+                    </Label>
+                    <Input
+                      id="vehicle_number"
+                      value={vehicleNumber}
+                      onChange={(e) => setVehicleNumber(e.target.value.toUpperCase())}
+                      placeholder="TN01AB1234"
+                      className="rounded-lg border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                    />
+                  </div>
+                </div>
                 
                 <div className="mb-6">
                   <Label className="text-sm font-medium text-gray-700 mb-2 block">Booking Details</Label>
@@ -483,7 +612,14 @@ export default function SearchParking() {
                         <Calendar className="h-4 w-4 mr-2" />
                         <span>Date</span>
                       </div>
-                      <span className="font-medium">{format(new Date(), 'dd MMM yyyy')}</span>
+                      <span className="font-medium">{format(new Date(bookingStartAt), 'dd MMM yyyy')}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center text-gray-600">
+                        <Clock className="h-4 w-4 mr-2" />
+                        <span>Start</span>
+                      </div>
+                      <span className="font-medium">{format(new Date(bookingStartAt), 'h:mm a')}</span>
                     </div>
                     <div className="flex justify-between items-center">
                       <div className="flex items-center text-gray-600">
@@ -549,27 +685,11 @@ export default function SearchParking() {
                     </TabsContent>
                     
                     <TabsContent value="wallet" className="mt-0">
-                      <div className="bg-gray-50 rounded-lg p-4 text-center">
-                        <div className="flex flex-col items-center justify-center space-y-2">
-                          <Button variant="outline" className="w-full justify-start">
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Paytm_Logo_%28standalone%29.svg/2560px-Paytm_Logo_%28standalone%29.svg.png" 
-                                alt="Paytm" 
-                                className="h-6 mr-2" />
-                            Paytm
-                          </Button>
-                          <Button variant="outline" className="w-full justify-start">
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/PhonePe_Logo.svg/2560px-PhonePe_Logo.svg.png" 
-                                alt="PhonePe" 
-                                className="h-6 mr-2" />
-                            PhonePe
-                          </Button>
-                          <Button variant="outline" className="w-full justify-start">
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Amazon_Pay_logo.svg/1280px-Amazon_Pay_logo.svg.png" 
-                                alt="Amazon Pay" 
-                                className="h-6 mr-2" />
-                            Amazon Pay
-                          </Button>
-                        </div>
+                      <div className="bg-gray-50 rounded-lg p-4">
+                        <p className="text-sm text-gray-700 mb-2">Wallet payment selected.</p>
+                        <p className="text-xs text-gray-500">
+                          This is a demo payment flow. Final confirmation will still use secure backend booking RPC.
+                        </p>
                       </div>
                     </TabsContent>
                   </Tabs>
@@ -588,8 +708,9 @@ export default function SearchParking() {
                   type="button"
                   className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white"
                   onClick={handleConfirmBooking}
+                  disabled={bookingProcessing}
                 >
-                  Confirm Booking
+                  {bookingProcessing ? "Confirming..." : "Confirm Booking"}
                 </Button>
               </DialogFooter>
             </>

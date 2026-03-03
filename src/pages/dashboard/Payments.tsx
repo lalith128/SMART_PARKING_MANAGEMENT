@@ -27,6 +27,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/contexts/AuthContext";
 import type { Database } from "@/types/supabase";
 
 type Payment = Database["public"]["Tables"]["payments"]["Row"] & {
@@ -37,13 +38,20 @@ type Payment = Database["public"]["Tables"]["payments"]["Row"] & {
 
 export default function Payments() {
   const { toast } = useToast();
+  const { user } = useAuth();
   const [payments, setPayments] = useState<Payment[]>([]);
   const [loading, setLoading] = useState(true);
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
   const [selectedPayment, setSelectedPayment] = useState<Payment | null>(null);
-  const [paymentMethod, setPaymentMethod] = useState<string>("credit_card");
+  const [paymentMethod, setPaymentMethod] = useState<string>("online");
 
   const fetchPayments = useCallback(async () => {
+    if (!user) {
+      setPayments([]);
+      setLoading(false);
+      return;
+    }
+
     try {
       const { data, error } = await supabase
         .from('payments')
@@ -62,7 +70,7 @@ export default function Payments() {
     } finally {
       setLoading(false);
     }
-  }, [toast]);
+  }, [toast, user]);
 
   useEffect(() => {
     fetchPayments();
@@ -129,6 +137,8 @@ export default function Payments() {
         return 'text-yellow-600';
       case 'failed':
         return 'text-red-600';
+      case 'refunded':
+        return 'text-sky-600';
       default:
         return 'text-gray-600';
     }
@@ -140,14 +150,20 @@ export default function Payments() {
         return <CheckCircle className="h-5 w-5 text-green-600" />;
       case 'failed':
         return <XCircle className="h-5 w-5 text-red-600" />;
+      case 'refunded':
+        return <CheckCircle className="h-5 w-5 text-sky-600" />;
       default:
         return <Clock className="h-5 w-5 text-yellow-600" />;
     }
   };
 
   if (loading) {
-    return <div>Loading payments...</div>;
+    return <div className="text-sm text-gray-500">Loading payments...</div>;
   }
+
+  const totalPaid = payments
+    .filter((p) => p.status === "completed")
+    .reduce((sum, p) => sum + Number(p.amount), 0);
 
   return (
     <div className="space-y-6">
@@ -158,7 +174,24 @@ export default function Payments() {
         </p>
       </div>
 
-      <div className="bg-white rounded-lg shadow">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="rounded-xl border bg-white p-4">
+          <p className="text-sm text-gray-500">Total Records</p>
+          <p className="text-2xl font-semibold text-gray-900">{payments.length}</p>
+        </div>
+        <div className="rounded-xl border bg-white p-4">
+          <p className="text-sm text-gray-500">Completed Payments</p>
+          <p className="text-2xl font-semibold text-emerald-700">
+            {payments.filter((p) => p.status === "completed").length}
+          </p>
+        </div>
+        <div className="rounded-xl border bg-white p-4">
+          <p className="text-sm text-gray-500">Total Paid</p>
+          <p className="text-2xl font-semibold text-indigo-700">₹{totalPaid.toFixed(2)}</p>
+        </div>
+      </div>
+
+      <div className="bg-white rounded-lg shadow border overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow>
@@ -242,7 +275,8 @@ export default function Payments() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="credit_card">Credit Card</SelectItem>
+                  <SelectItem value="online">UPI / Online</SelectItem>
+                  <SelectItem value="card">Card</SelectItem>
                   <SelectItem value="wallet">Wallet</SelectItem>
                   <SelectItem value="cash">Cash</SelectItem>
                 </SelectContent>

@@ -4,15 +4,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Car, Search, Calendar, CreditCard, User, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabase";
-import { NotificationType } from "@/types/supabase";
-
-interface Notification {
-  id: number;
-  message: string;
-  type: NotificationType;
-  is_read: boolean;
-  created_at: string;
-}
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -90,9 +81,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200">
+      <header className="bg-white/90 backdrop-blur border-b border-gray-200 sticky top-0 z-30">
         <div className="px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between">
             <Link
@@ -131,19 +122,19 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         </div>
       </header>
 
-      <div className="flex">
+      <div className="flex flex-col lg:flex-row">
         {/* Sidebar */}
-        <aside className="w-64 bg-white border-r border-gray-200 min-h-[calc(100vh-4rem)]">
-          <nav className="p-4 space-y-1">
+        <aside className="w-full lg:w-64 bg-white border-r border-gray-200 lg:min-h-[calc(100vh-4rem)]">
+          <nav className="p-3 lg:p-4 flex lg:block gap-2 overflow-x-auto lg:overflow-visible">
             {navItems.map((item) => {
               const isActive = location.pathname === item.path;
               return (
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  className={`shrink-0 flex items-center gap-2 lg:gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                     isActive
-                      ? "bg-teal-50 text-teal-600"
+                      ? "bg-teal-50 text-teal-700 border border-teal-100"
                       : "text-gray-700 hover:bg-gray-50"
                   }`}
                 >
@@ -156,7 +147,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 p-8">
+        <main className="flex-1 p-4 sm:p-6 lg:p-8">
           {children}
         </main>
       </div>

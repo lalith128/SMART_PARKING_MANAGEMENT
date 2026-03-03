@@ -108,22 +108,29 @@ export default function Notifications() {
 
   const getNotificationIcon = (type: string) => {
     switch (type) {
-      case 'info':
-        return <Info className="h-5 w-5 text-blue-500" />;
-      case 'warning':
-        return <AlertTriangle className="h-5 w-5 text-yellow-500" />;
+      case 'booking_confirmed':
+      case 'booking_completed':
       case 'success':
         return <CheckCircle className="h-5 w-5 text-green-500" />;
+      case 'new_booking':
+      case 'payment_received':
+      case 'info':
+        return <Info className="h-5 w-5 text-blue-500" />;
+      case 'booking_cancelled':
       case 'error':
         return <XCircle className="h-5 w-5 text-red-500" />;
+      case 'warning':
+        return <AlertTriangle className="h-5 w-5 text-yellow-500" />;
       default:
         return <Info className="h-5 w-5 text-gray-500" />;
     }
   };
 
   if (loading) {
-    return <div>Loading notifications...</div>;
+    return <div className="text-sm text-gray-500">Loading notifications...</div>;
   }
+
+  const unreadCount = notifications.filter((n) => !n.is_read).length;
 
   return (
     <div className="space-y-6">
@@ -132,6 +139,11 @@ export default function Notifications() {
         <p className="mt-2 text-gray-600">
           Stay updated with your parking activities
         </p>
+      </div>
+
+      <div className="rounded-xl border bg-white p-4 flex items-center justify-between">
+        <p className="text-gray-600">Unread notifications</p>
+        <span className="text-xl font-semibold text-teal-700">{unreadCount}</span>
       </div>
 
       <div className="space-y-4">
@@ -151,10 +163,10 @@ export default function Notifications() {
           notifications.map((notification) => (
             <div
               key={notification.id}
-              className={`flex items-start gap-4 p-4 rounded-lg border ${
+              className={`flex items-start gap-4 p-4 rounded-xl border shadow-sm ${
                 notification.is_read
                   ? "bg-white border-gray-200"
-                  : "bg-teal-50 border-teal-200"
+                  : "bg-teal-50/70 border-teal-200"
               }`}
             >
               <div className="flex-shrink-0">
@@ -162,6 +174,7 @@ export default function Notifications() {
               </div>
 
               <div className="flex-grow">
+                <p className="font-medium text-gray-900">{notification.title}</p>
                 <p className="text-gray-900">{notification.message}</p>
                 <p className="mt-1 text-sm text-gray-600">
                   {format(new Date(notification.created_at), "MMM d, yyyy 'at' h:mm a")}

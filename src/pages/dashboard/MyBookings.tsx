@@ -3,6 +3,7 @@ import { format } from "date-fns";
 import { Clock, Calendar, MapPin } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   Tabs,
   TabsContent,
@@ -17,6 +18,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/contexts/AuthContext";
 import type { Database } from "@/types/supabase";
 
 type Booking = Database["public"]["Tables"]["bookings"]["Row"] & {
@@ -25,14 +27,22 @@ type Booking = Database["public"]["Tables"]["bookings"]["Row"] & {
 
 export default function MyBookings() {
   const { toast } = useToast();
+  const { user } = useAuth();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchBookings = useCallback(async () => {
+    if (!user) {
+      setBookings([]);
+      setLoading(false);
+      return;
+    }
+
     try {
       const { data, error } = await supabase
         .from('bookings')
         .select('*, parking_spaces(*)')
+        .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -47,7 +57,7 @@ export default function MyBookings() {
     } finally {
       setLoading(false);
     }
-  }, [toast]);
+  }, [toast, user]);
 
   useEffect(() => {
     fetchBookings();
@@ -75,12 +85,17 @@ export default function MyBookings() {
 
   const handleCancel = async (bookingId: string) => {
     try {
-      const { error } = await supabase
-        .from('bookings')
-        .update({ status: 'cancelled' })
-        .eq('id', bookingId);
+      if (!user) return;
+
+      const { data, error } = await supabase.rpc('cancel_booking', {
+        p_booking_id: bookingId,
+        p_cancelled_by_user_id: user.id,
+      });
 
       if (error) throw error;
+      if (!data) {
+        throw new Error('Booking cannot be cancelled now');
+      }
 
       toast({
         title: "Success",
@@ -96,43 +111,29 @@ export default function MyBookings() {
     }
   };
 
-  const handleExtend = async (bookingId: string) => {
-    try {
-      // Add 1 hour to the end time
-      const { error } = await supabase
-        .from('bookings')
-        .update({
-          end_time: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
-        })
-        .eq('id', bookingId);
-
-      if (error) throw error;
-
-      toast({
-        title: "Success",
-        description: "Booking extended successfully.",
-      });
-    } catch (error) {
-      console.error('Error extending booking:', error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to extend booking. Please try again.",
-      });
-    }
-  };
-
   const filterBookings = (status: string) => {
     return bookings.filter((booking) => booking.status === status);
   };
 
+  const statusBadgeClass = (status: string) => {
+    if (status === "active") return "bg-emerald-100 text-emerald-700 border-emerald-200";
+    if (status === "pending") return "bg-amber-100 text-amber-700 border-amber-200";
+    if (status === "completed") return "bg-blue-100 text-blue-700 border-blue-200";
+    return "bg-rose-100 text-rose-700 border-rose-200";
+  };
+
   const BookingCard = ({ booking }: { booking: Booking }) => (
-    <Card>
-      <CardHeader>
+    <Card className="border-0 shadow-md hover:shadow-lg transition-shadow">
+      <CardHeader className="pb-3">
+        <div className="flex items-start justify-between gap-3">
         <CardTitle>{booking.parking_spaces.address}</CardTitle>
+          <Badge variant="outline" className={statusBadgeClass(booking.status)}>
+            {booking.status}
+          </Badge>
+        </div>
         <CardDescription className="flex items-center gap-1">
           <MapPin className="h-4 w-4" />
-          {`${booking.parking_spaces.location.lat}, ${booking.parking_spaces.location.lng}`}
+          {`${booking.parking_spaces.district}, ${booking.parking_spaces.state}`}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -153,21 +154,14 @@ export default function MyBookings() {
           </div>
 
           <div className="flex items-center justify-between">
-            <span className="font-medium">
-              ₹{booking.parking_spaces.hourly_rate}/hr
-            </span>
-            {booking.status === 'active' && (
-              <div className="space-x-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleExtend(booking.id)}
-                >
-                  Extend
-                </Button>
-                <Button
-                  variant="destructive"
-                  size="sm"
+                <span className="font-medium">
+                  ₹{booking.parking_spaces.hourly_rate}/hr
+                </span>
+                {booking.status === 'active' && (
+                  <div className="space-x-2">
+                    <Button
+                      variant="destructive"
+                      size="sm"
                   onClick={() => handleCancel(booking.id)}
                 >
                   Cancel
@@ -181,7 +175,7 @@ export default function MyBookings() {
   );
 
   if (loading) {
-    return <div>Loading bookings...</div>;
+    return <div className="text-sm text-gray-500">Loading bookings...</div>;
   }
 
   return (
@@ -193,8 +187,8 @@ export default function MyBookings() {
         </p>
       </div>
 
-      <Tabs defaultValue="active">
-        <TabsList>
+      <Tabs defaultValue="active" className="space-y-4">
+        <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 bg-white border">
           <TabsTrigger value="active">Active</TabsTrigger>
           <TabsTrigger value="pending">Pending</TabsTrigger>
           <TabsTrigger value="completed">Completed</TabsTrigger>

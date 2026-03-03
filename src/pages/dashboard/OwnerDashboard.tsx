@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { toast } from 'sonner';
-import { Plus, Building2, Car, Bike, Truck, IndianRupee, ImagePlus, X, ImageIcon, Edit, MapPin, Phone, Mail, User, ArrowRight, LogOut } from 'lucide-react';
+import { Plus, Building2, Car, Bike, Truck, IndianRupee, ImagePlus, X, ImageIcon, Edit, MapPin, Phone, Mail, User, LogOut } from 'lucide-react';
 import type { Database } from '@/types/supabase';
 
 type ParkingSpace = Database['public']['Tables']['parking_spaces']['Row'];
@@ -95,12 +95,6 @@ export default function OwnerDashboard() {
       toast.error('Failed to update profile');
     }
   };
-
-  useEffect(() => {
-    if (user) {
-      loadParkingSpaces();
-    }
-  }, [user]);
 
   const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
@@ -238,12 +232,10 @@ export default function OwnerDashboard() {
 
   const loadParkingSpaces = useCallback(async () => {
     if (!user) {
-      console.log('No user found, skipping loadParkingSpaces');
       return;
     }
 
     try {
-      console.log('Fetching parking spaces for user:', user.id);
       const { data, error } = await supabase
         .from('parking_spaces')
         .select('*')
@@ -253,7 +245,6 @@ export default function OwnerDashboard() {
         throw error;
       }
       
-      console.log('Parking spaces loaded:', data);
       setParkingSpaces(data);
     } catch (error) {
       console.error('Error in loadParkingSpaces:', error);
@@ -318,8 +309,6 @@ export default function OwnerDashboard() {
         heavy_vehicle_capacity: parseInt(formData.heavy_vehicle_capacity) || 0,
       };
 
-      console.log('Updating parking space data:', parkingSpaceData);
-
       const { error } = await supabase
         .from('parking_spaces')
         .update(parkingSpaceData)
@@ -332,9 +321,7 @@ export default function OwnerDashboard() {
 
       // Handle image updates
       if (selectedImages.length > 0) {
-        console.log('Uploading new images for existing space...');
         const imageUrls = await uploadImages(currentEditSpace.id);
-        console.log('New image URLs:', imageUrls);
         
         // Get current images from the database to ensure we have the latest
         const { data: spaceData, error: fetchError } = await supabase
@@ -351,8 +338,6 @@ export default function OwnerDashboard() {
         // Combine existing images with new ones
         const existingImages = spaceData?.images || [];
         const updatedImages = [...existingImages, ...imageUrls];
-        
-        console.log('Combined image URLs:', updatedImages);
         
         const { error: updateError } = await supabase
           .from('parking_spaces')
@@ -467,7 +452,7 @@ export default function OwnerDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50">
+    <div className="min-h-screen bg-gradient-to-r from-slate-50 via-blue-50 to-indigo-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Dashboard Header */}
         <div className="mb-12">
