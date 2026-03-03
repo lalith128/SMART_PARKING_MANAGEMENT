@@ -8,7 +8,9 @@
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "sb": "npx supabase",
+    "test:e2e:smoke": "node scripts/e2e-smoke.cjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",

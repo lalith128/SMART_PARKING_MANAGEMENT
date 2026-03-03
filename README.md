@@ -1,94 +1,101 @@
-# 🚗 Smart Parking Management System  
+# Smart Parking Management
 
-A web and mobile-based **Smart Parking Management System** that allows **parking lot owners** to manage their spaces, **users** to find and book parking slots, and **admins** to oversee operations.
+Production-oriented smart parking platform built with React + Supabase. It supports user booking flows, owner space management, payments/wallet tracking, notifications, and secured backend RPC workflows.
 
----
+## Core Capabilities
 
-## 📌 Features  
+- User authentication with profile management.
+- Owner parking space management (capacity, pricing, images).
+- Real-time parking discovery and booking.
+- Booking lifecycle controls (create, cancel, complete).
+- Payment and refund tracking.
+- Notifications for booking/payment events.
+- Role-based backend access with strict RLS and secured RPCs.
+- Login protection with failed-attempt lockout support.
 
-### 🔹 **User & Owner Management**
-- Register/login via Email (OTP-based authentication).
-- Edit profiles, link bank accounts (for owners).
-- Manage past bookings and view parking history.
+## Tech Stack
 
-### 🔹 **Parking Slot & Booking Management**
-- Search for parking slots by location, price, or name.
-- Real-time availability tracking.
-- Pre-book and extend parking duration.
-- Cancel bookings and get refunds.
+- Frontend: React, TypeScript, Vite, Tailwind CSS, shadcn/ui.
+- Backend: Supabase (Postgres, Auth, Storage, RLS, RPC, pg_cron).
+- API (admin routes): Next.js API handlers in `pages/api/admin/*`.
 
-### 🔹 **Payment & Revenue Management**
-- Secure payments.
-- Track payment history.
-- Dynamic pricing based on demand and time.
-- Revenue dashboard for parking lot owners.
+## Project Structure
 
-### 🔹 **Admin Management**
-- Manage users and parking lot owners (approve/block).
-- Handle disputes and complaints.
-- View analytics and generate reports.
+- `src/pages/dashboard/` - User and owner dashboard pages.
+- `src/components/` - Reusable UI and dashboard layout components.
+- `src/contexts/` - Auth context and session handling.
+- `supabase/migrations/` - Database schema and security migrations.
+- `scripts/e2e-smoke.cjs` - Live Supabase end-to-end smoke test.
 
-### 🔹 **Notifications, Feedback & Analytics**
-- Real-time alerts (booking confirmation, slot availability, etc.).
-- Collect and analyze user feedback.
-- Provide insights on parking lot performance.
+## Environment Variables
 
----
+Create `.env` in project root:
 
-## 💻 Tech Stack  
+```env
+VITE_SUPABASE_URL=https://<project-ref>.supabase.co
+VITE_SUPABASE_ANON_KEY=<anon-key>
 
-### **Frontend**  
-- React.js (Web)  
-- Tailwind CSS 
-- Vite
+NEXT_PUBLIC_SUPABASE_URL=https://<project-ref>.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<anon-key>
 
-### **Backend**  
-- PostgreSQL
-- Supabase  
-
-### **Authentication**
-- Supabase Auth
-
-### **Deployment**
-- Supabase (Backend)
-
----
-
-## 🛠 Installation & Setup  
-
-### **1️⃣ Clone the Repository**
-```bash
-git clone https://github.com/lalith128/SMART_PARKING_MANAGEMENT
-cd SMART_PARKING_MANAGEMENT
-
+SUPABASE_SERVICE_ROLE_KEY=<service-role-key>
+ADMIN_SESSION_SECRET=<long-random-secret>
 ```
 
-### **2️⃣ Install Dependencies**
+Notes:
+- `VITE_*` values are required for frontend runtime.
+- `SUPABASE_SERVICE_ROLE_KEY` and `ADMIN_SESSION_SECRET` are required for admin API routes.
+- Never commit secrets. `.env` is ignored by git.
+
+## Getting Started
+
 ```bash
 npm install
-# or
-yarn install
-```
-
-### **3️⃣ Environment Setup**
-Create a `.env.local` file in the root directory with the following variables:
-```
-VITE_SUPABASE_URL=your_supabase_url
-VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
-```
-
-### **4️⃣ Run Development Server**
-```bash
 npm run dev
-# or
-yarn dev
 ```
 
-### **5️⃣ Build for Production**
+Open: `http://localhost:5173`
+
+## Scripts
+
+- `npm run dev` - Start development server.
+- `npm run build` - Build production bundle.
+- `npm run preview` - Preview production build locally.
+- `npm run lint` - Run ESLint.
+- `npm run sb -- <command>` - Run Supabase CLI commands.
+- `npm run test:e2e:smoke` - Run live backend E2E smoke test (creates + cleans temporary data).
+
+## Database and Security
+
+The project uses hardened Supabase migration layers including:
+
+- Strict RLS policies (no broad public write access).
+- Security-definer RPC controls with auth checks.
+- Booking/payment flow integrity constraints.
+- Cron-driven completion processing.
+- Login lockout helper functions and cleanup job.
+
+Latest hardening migrations are in `supabase/migrations/20260303*.sql`.
+
+## End-to-End Validation
+
+Run:
+
 ```bash
-npm run build
-# or
-yarn build
+npm run test:e2e:smoke
 ```
 
+This verifies key edge cases:
 
+- Failed-login lockout threshold and reset.
+- Booking creation and availability checks.
+- Overbooking rejection.
+- Cancellation and refund flow.
+- Completion job idempotence.
+
+## Deployment Checklist
+
+- Set all required env vars in target environment.
+- Apply latest Supabase migrations.
+- Rotate any exposed or shared keys.
+- Run `npm run build` and `npm run test:e2e:smoke` before release.
