@@ -113,14 +113,47 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const signIn = async (email: string, password: string) => {
+    const normalizedEmail = email.trim().toLowerCase();
+
+    const formatLockoutMessage = (lockoutUntil: string) => {
+      const until = new Date(lockoutUntil);
+      const minutes = Math.max(1, Math.ceil((until.getTime() - Date.now()) / 60000));
+      return `Too many failed attempts. Try again in ${minutes} minute${minutes > 1 ? 's' : ''}.`;
+    };
+
+    const { data: existingLockout } = await supabase.rpc('is_account_locked', {
+      p_email: normalizedEmail,
+    });
+
+    if (existingLockout) {
+      throw new Error(formatLockoutMessage(existingLockout));
+    }
+
     const { data, error } = await supabase.auth.signInWithPassword({
-      email,
+      email: normalizedEmail,
       password,
     });
 
     if (error) {
-      throw error;
+      const { data: newLockoutUntil } = await supabase.rpc('record_failed_login_attempt', {
+        p_email: normalizedEmail,
+        p_ip: null,
+      });
+
+      if (newLockoutUntil) {
+        throw new Error(formatLockoutMessage(newLockoutUntil));
+      }
+
+      if (error.message?.toLowerCase().includes('email not confirmed')) {
+        throw error;
+      }
+
+      throw new Error('Invalid email or password');
     }
+
+    await supabase.rpc('clear_failed_login_attempts', {
+      p_email: normalizedEmail,
+    });
     
     return { data };
   };

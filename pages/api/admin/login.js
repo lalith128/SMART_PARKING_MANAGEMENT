@@ -1,4 +1,4 @@
-import { verifyAdminCredentials } from '../../../lib/supabase-admin';
+import { createAdminToken, verifyAdminCredentials } from '../../../lib/supabase-admin';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -18,8 +18,11 @@ export default async function handler(req, res) {
       return res.status(401).json({ error: error || 'Authentication failed' });
     }
 
-    // Set a secure cookie for admin authentication
-    res.setHeader('Set-Cookie', `admin-token=${user.id}; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=${60 * 60 * 24 * 7}`);
+    const token = createAdminToken(user);
+    res.setHeader(
+      'Set-Cookie',
+      `__Host-admin-token=${token}; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=${60 * 60 * 24 * 7}; Priority=High`
+    );
     
     return res.status(200).json({ success: true, user: { id: user.id, email: user.email } });
   } catch (error) {

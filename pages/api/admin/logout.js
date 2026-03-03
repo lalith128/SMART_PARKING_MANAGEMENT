@@ -4,7 +4,7 @@ export default function handler(req, res) {
   }
 
   // Clear the admin token cookie
-  res.setHeader('Set-Cookie', 'admin-token=; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=0');
+  res.setHeader('Set-Cookie', '__Host-admin-token=; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=0; Priority=High');
   
   return res.status(200).json({ success: true });
 }
