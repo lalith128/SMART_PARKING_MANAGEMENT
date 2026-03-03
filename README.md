@@ -99,3 +99,10 @@ This verifies key edge cases:
 - Apply latest Supabase migrations.
 - Rotate any exposed or shared keys.
 - Run `npm run build` and `npm run test:e2e:smoke` before release.
+
+## Community Standards
+
+- Code of Conduct: `CODE_OF_CONDUCT.md`
+- Contributing Guide: `CONTRIBUTING.md`
+- Security Policy: `SECURITY.md`
+- License: `LICENSE`
